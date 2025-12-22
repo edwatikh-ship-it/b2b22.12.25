@@ -22,7 +22,7 @@ This file explains what each top-level documentation file means and where it liv
 - SPRINTS.md  sprint plan (dates, goals, checkboxes); keep it current.
 
 ## Where these files live
-All files above must live in the repo root D:\b2bplatform (SSoT rule: no duplicates in backend\).
+All files above must live in the repo root D:\b2b (SSoT rule: no duplicates in backend\).
 
 ## Sandbox snapshot 2025-12-22
 
@@ -36,3 +36,9 @@ All files above must live in the repo root D:\b2bplatform (SSoT rule: no duplica
 - tmp\backend (local only, not in repo)
   - Storage for temporary .bak and tmp-* files from backend to keep source tree clean.
   - May be safely cleaned up; never treat it as SSoT.
+
+
+- Prompt\<timestamp>\
+  - Per-chat snapshot folder under D:\b2b\Prompt.
+  - Contains copies of SSoT docs for that chat (api-contracts.yaml, PROJECT-RULES.md, PROJECT-DOC.md, DOCS-INDEX.md, PROJECT-TREE.txt, HANDOFF.md, INCIDENTS.md, SPRINTS.md, quicklog.ps1, backend-tree.txt).
+  - Not SSoT; safe to delete after the chat is fully handed off into root docs.

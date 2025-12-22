@@ -462,3 +462,30 @@ B) LOG entries (HANDOFF / INCIDENTS)
 - Files touched
 
 - Rule: Любой клиент parserservice, который шлёт кириллицу в query, обязан использовать UTF-8 и заголовок Content-Type: application/json; charset=utf-8. При появлении '?????' или 'Р В Р...' сначала проверить charset клиента, а не править parserservice или api-contracts.yaml.
+## New chat bootstrap (Prompt folder)
+
+- Every new chat MUST start with explicit PowerShell commands to prepare a local prompt snapshot.
+- The assistant MUST NOT guess paths; if D:\b2b is not confirmed, stop and ask for the actual repo root path.
+
+Minimal required commands per new chat (example, adjust timestamp):
+
+- Create prompt directory:
+  - PowerShell: Set-Location D:\b2b; New-Item -ItemType Directory -Force .\Prompt\2025-12-22_1747 | Out-Null
+- Copy SSoT docs into that prompt folder:
+  - PowerShell: Copy-Item .\Docs\api-contracts.yaml .\Prompt\2025-12-22_1747\api-contracts.yaml
+  - PowerShell: Copy-Item .\Docs\PROJECT-RULES.md .\Prompt\2025-12-22_1747\PROJECT-RULES.md
+  - PowerShell: Copy-Item .\Docs\PROJECT-DOC.md .\Prompt\2025-12-22_1747\PROJECT-DOC.md
+  - PowerShell: Copy-Item .\Docs\DOCS-INDEX.md .\Prompt\2025-12-22_1747\DOCS-INDEX.md
+  - PowerShell: Copy-Item .\Docs\PROJECT-TREE.txt .\Prompt\2025-12-22_1747\PROJECT-TREE.txt
+  - PowerShell: Copy-Item .\Docs\HANDOFF.md .\Prompt\2025-12-22_1747\HANDOFF.md
+  - PowerShell: Copy-Item .\Docs\INCIDENTS.md .\Prompt\2025-12-22_1747\INCIDENTS.md
+  - PowerShell: Copy-Item .\Docs\SPRINTS.md .\Prompt\2025-12-22_1747\SPRINTS.md
+  - PowerShell: Copy-Item .\Docs\quicklog.ps1 .\Prompt\2025-12-22_1747\quicklog.ps1 -ErrorAction SilentlyContinue
+  - PowerShell: Copy-Item .\Docs\backend-tree.txt .\Prompt\2025-12-22_1747\backend-tree.txt -ErrorAction SilentlyContinue
+
+Notes:
+
+- Prompt\* folders are NOT SSoT and MUST NOT be used as a source of truth for contracts or process rules.
+- If some optional files (quicklog.ps1, backend-tree.txt) do not exist yet, the assistant must either:
+  - provide commands to generate them, or
+  - explicitly skip them and state that in the chat.

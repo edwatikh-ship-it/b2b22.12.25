@@ -421,3 +421,11 @@ GET /moderator/pending-domains → [] (resolved)
     - PowerShell: Select-String -Path .\Docs\DOCS-INDEX.md -SimpleMatch 'SPRINTS.md'  # found
     - PowerShell: Select-String -Path .\Docs\PROJECT-TREE.txt -SimpleMatch 'tmp\backend'  # found
   - Note: In chat, attachments named paste.txt are conversation snippets only, not repo files; do not treat them as artifacts to clean.
+
+- 2025-12-22 17:47 MSK
+  - What: Introduced mandatory Prompt\<timestamp> folder preparation for every new chat (local snapshot of SSoT docs).
+  - Why: Ensure every chat starts from a clean, explicit copy of api-contracts.yaml and root docs, without guessing paths or relying on stale context.
+  - Verify:
+    - PowerShell: Set-Location D:\b2b; Select-String -Path .\Docs\PROJECT-RULES.md -SimpleMatch 'New chat bootstrap (Prompt folder)'  # found
+    - PowerShell: Select-String -Path .\Docs\DOCS-INDEX.md -SimpleMatch 'Prompt<'  # found
+  - Note: Prompt\* folders are local-only, not SSoT, and may be cleaned up after HANDOFF/INCIDENTS are updated in root.
