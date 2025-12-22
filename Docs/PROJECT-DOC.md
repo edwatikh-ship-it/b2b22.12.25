@@ -171,3 +171,68 @@ Source: D:\ProjectVC\search-parser (отдельный репозиторий).
 - Ошибки парсера:
   - Не пишутся в INCIDENTS.md.
   - Сохраняются в БД и показываются модератору в отдельном окне ошибок.
+
+## Parser Service (Search Parser API) — внешняя интеграция
+
+Source: D:\ProjectVC\search-parser (отдельный репозиторий).
+
+### Режимы работы
+
+1. CLI-режим (ручной запуск модератором / отладка)
+
+- Служебный скрипт `start_chrome_debug.ps1`:
+  - Убивает все процессы Chrome.
+  - Запускает Chrome с CDP: `--remote-debugging-port=9222 --user-data-dir=C:\temp\chrome-debug`.
+  - Окно PowerShell с этим скриптом нельзя закрывать — оно держит CDP-сессию.
+- Новый сеанс модератора:
+  - Открыть отдельное окно PowerShell.
+  - Выполнить:
+    - `cd D:\ProjectVC\search-parser`
+    - `.\.venv\Scripts\Activate.ps1`
+    - `python cli.py <keyword> <depth> <mode>`
+- Параметры:
+  - `keyword`: бизнес-ключ (без префикса "buy ", он добавляется только на стороне поиска).
+  - `depth`: количество страниц (глубина поиска).
+  - `mode`: `yandex|google|both`.
+  - `--output`: путь к файлу (по умолчанию `results.txt`).
+- Результат:
+  - Парсер создаёт `SearchParser`, выполняет запрос и сохраняет все уникальные ссылки в файл.
+  - В консоли выводится количество найденных ссылок и имя файла.
+
+2. HTTP API (интеграция с backend B2B)
+
+- FastAPI-приложение в `api.py`:
+  - `POST /parse`:
+    - Request: `ParseRequest { keyword, depth (1-10), mode (yandex|google|both), output_file? }`.
+    - Поведение:
+      - Генерирует `task_id = <keyword>_<timestamp>`.
+      - Ставит фоновую задачу `parse_task(task_id, request)`.
+      - Пишет `results_storage[task_id] = {"status": "running"}`.
+      - Возвращает `ParseResponse { task_id, message, started_at }`.
+  - `parse_task(task_id, request)`:
+    - Создаёт `SearchParser` и вызывает `parser.parse(keyword, depth, mode)`.
+    - Сохраняет ссылки в файл `output_file` (по умолчанию `results_<task_id>.txt`).
+    - Обновляет `results_storage[task_id]`:
+      - Успешно: `{"status": "completed", "links_count", "links", "keyword", "depth", "mode", "output_file"}`.
+      - Ошибка: `{"status": "failed", "error"}`.
+  - `GET /results/{task_id}`:
+    - Возвращает состояние задачи и результаты.
+  - `GET /health`:
+    - Возвращает статус живости сервиса.
+
+### Связь с ЛК модератора
+
+- При нажатии “Начать парсинг” по ключу (задачи или ручной ввод) backend вызывает Parser Service `POST /parse` с:
+  - `keyword` — чистый бизнес-ключ.
+  - `depth` — глубина из UI (10–50, маппится в 1–10 для парсера).
+  - `mode` — `google|yandex|both`.
+- Backend периодически опрашивает `/results/{task_id}`.
+- После `status="completed"` backend:
+  - Берёт `links` (URL).
+  - Извлекает домены.
+  - Группирует по доменам (accordion UI).
+  - Фильтрует blacklist-домены.
+  - Сохраняет результаты и историю в БД (parsing_runs, domain_hits).
+- Ошибки парсера:
+  - Не пишутся в INCIDENTS.md.
+  - Сохраняются в БД и показываются модератору в отдельном окне ошибок.
