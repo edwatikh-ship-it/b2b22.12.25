@@ -1,0 +1,2456 @@
+openapi: 3.1.0
+info:
+  title: B2B Platform API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      tags:
+      - System
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /user/requests:
+    post:
+      tags:
+      - UserRequests
+      summary: Create Request Manual
+      operationId: create_request_manual_user_requests_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRequestManualRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateRequestResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - UserRequests
+      summary: List User Requests
+      operationId: list_user_requests_user_requests_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestListResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}:
+    get:
+      tags:
+      - UserRequests
+      summary: Get User Request Detail
+      operationId: get_user_request_detail_user_requests__requestId__get
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestDetailDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/keys:
+    put:
+      tags:
+      - UserRequests
+      summary: Update User Request Keys
+      operationId: update_user_request_keys_user_requests__requestId__keys_put
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequestKeysRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestDetailDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/submit:
+    post:
+      tags:
+      - UserRequests
+      summary: Submit User Request
+      operationId: submit_user_request_user_requests__requestId__submit_post
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitRequestResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/upload-and-create:
+    post:
+      tags:
+      - UserRequests
+      summary: Upload And Create
+      operationId: upload_and_create_user_upload_and_create_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_and_create_user_upload_and_create_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/recipients:
+    put:
+      tags:
+      - UserMessaging
+      summary: Update Recipients
+      operationId: update_recipients_userrequests__requestId__recipients_put
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRecipientsRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipientsResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/send:
+    post:
+      tags:
+      - UserMessaging
+      summary: Send Request Messages
+      operationId: send_request_messages_userrequests__requestId__send_post
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/send-new:
+    post:
+      tags:
+      - UserMessaging
+      summary: Send Request Messages New
+      operationId: send_request_messages_new_userrequests__requestId__send_new_post
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/requests/{requestId}/messages:
+    get:
+      tags:
+      - UserMessaging
+      summary: List Request Messages
+      operationId: list_request_messages_userrequests__requestId__messages_get
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: includedeleted
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Includedeleted
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/messages/{messageId}:
+    delete:
+      tags:
+      - UserMessaging
+      summary: Delete Message
+      operationId: delete_message_usermessages__messageId__delete
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Messageid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/attachments:
+    post:
+      tags:
+      - Attachments
+      summary: Upload Attachment
+      operationId: upload_attachment_user_attachments_post
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_attachment_user_attachments_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Attachments
+      summary: List Attachments
+      operationId: list_attachments_user_attachments_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentListResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/attachments/{attachmentId}:
+    get:
+      tags:
+      - Attachments
+      summary: Get Attachment
+      operationId: get_attachment_user_attachments__attachmentId__get
+      parameters:
+      - name: attachmentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Attachmentid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Attachments
+      summary: Delete Attachment
+      operationId: delete_attachment_user_attachments__attachmentId__delete
+      parameters:
+      - name: attachmentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Attachmentid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericOkResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/attachments/{attachmentId}/download:
+    get:
+      tags:
+      - Attachments
+      summary: Download Attachment
+      operationId: download_attachment_user_attachments__attachmentId__download_get
+      parameters:
+      - name: attachmentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Attachmentid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/otp/request:
+    post:
+      tags:
+      - Auth
+      summary: Auth Otp Request
+      operationId: auth_otp_request_auth_otp_request_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthOtpRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/otp/verify:
+    post:
+      tags:
+      - Auth
+      summary: Auth Otp Verify
+      operationId: auth_otp_verify_auth_otp_verify_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthOtpVerifyDTO'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/me:
+    get:
+      tags:
+      - Auth
+      summary: Auth Me
+      operationId: auth_me_auth_me_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /suppliers/search:
+    get:
+      tags:
+      - Suppliers
+      summary: Suppliers Search
+      operationId: suppliers_search_suppliers_search_get
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          title: Limit
+          default: 20
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Suppliers Search Suppliers Search Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/tasks:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: List Moderator Tasks
+      operationId: list_moderator_tasks_moderator_tasks_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/tasks/{taskId}:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Moderator Task
+      operationId: get_moderator_task_moderator_tasks__taskId__get
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Taskid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/parsing-runs:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: List Parsing Runs
+      operationId: list_parsing_runs_moderator_parsing_runs_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/parsing-runs/{runId}:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Parsing Run Detail
+      operationId: get_parsing_run_detail_moderator_parsing_runs__runId__get
+      parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Runid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/resolved-domains:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: List Resolved Domains
+      operationId: list_resolved_domains_moderator_resolved_domains_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/domains/{domain}/hits:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Domain Hits
+      operationId: get_domain_hits_moderator_domains__domain__hits_get
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/urls/hits:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Url Hits
+      operationId: get_url_hits_moderator_urls_hits_get
+      parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Url
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/requests/{requestId}/start-parsing:
+    post:
+      tags:
+      - ModeratorTasks
+      summary: Start Parsing
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartParsingRequestDTO'
+      description: 'Starts parsing for a request.
+
+        MVP: request keys are mocked (later: fetch real keys from DB).'
+      operationId: start_parsing_moderator_requests__requestId__start_parsing_post
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartParsingResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/requests/{requestId}/parsing-status:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Parsing Status
+      operationId: get_parsing_status_moderator_requests__requestId__parsing_status_get
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsingStatusResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/requests/{requestId}/parsing-results:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Parsing Results
+      operationId: get_parsing_results_moderator_requests__requestId__parsing_results_get
+      parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Requestid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsingResultsResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/domains/{domain}/decision:
+    get:
+      tags:
+      - ModeratorDomainDecision
+      summary: Get Domain Decision
+      operationId: get_domain_decision_moderator_domains__domain__decision_get
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainDecisionResponseDTO'
+        '404':
+          description: Domain not found or no decision made
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - ModeratorDomainDecision
+      summary: Make Domain Decision
+      operationId: make_domain_decision_moderator_domains__domain__decision_post
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainDecisionRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainDecisionResponseDTO'
+        '404':
+          description: Domain not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/suppliers:
+    get:
+      tags:
+      - ModeratorSuppliers
+      summary: List Moderator Suppliers
+      operationId: list_moderator_suppliers_moderator_suppliers_get
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - ModeratorSuppliers
+      summary: Create Moderator Supplier
+      operationId: create_moderator_supplier_moderator_suppliers_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/suppliers/{supplierId}:
+    get:
+      tags:
+      - ModeratorSuppliers
+      summary: Get Moderator Supplier
+      operationId: get_moderator_supplier_moderator_suppliers__supplierId__get
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Supplierid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - ModeratorSuppliers
+      summary: Update Moderator Supplier
+      operationId: update_moderator_supplier_moderator_suppliers__supplierId__put
+      parameters:
+      - name: supplierId
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Supplierid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Payload
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/blacklist/domains:
+    post:
+      tags:
+      - Blacklist
+      summary: Add Blacklist Domain
+      operationId: add_blacklist_domain_moderator_blacklist_domains_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddModeratorBlacklistDomainRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorBlacklistDomainDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Blacklist
+      summary: List Blacklist Domains
+      operationId: list_blacklist_domains_moderator_blacklist_domains_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 200
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModeratorBlacklistDomainListResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/blacklist/domains/{domain}:
+    delete:
+      tags:
+      - Blacklist
+      summary: Delete Blacklist Domain
+      operationId: delete_blacklist_domain_moderator_blacklist_domains__domain__delete
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/blacklist-inn:
+    post:
+      tags:
+      - UserBlacklist
+      summary: Add User Blacklist Inn
+      operationId: add_user_blacklist_inn_user_blacklist_inn_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddUserBlacklistInnRequestDTO'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - UserBlacklist
+      summary: List User Blacklist Inn
+      operationId: list_user_blacklist_inn_user_blacklist_inn_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 200
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBlacklistInnListResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/blacklist-inn/{inn}:
+    delete:
+      tags:
+      - UserBlacklist
+      summary: Remove User Blacklist Inn
+      operationId: remove_user_blacklist_inn_user_blacklist_inn__inn__delete
+      parameters:
+      - name: inn
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Inn
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/pending-domains:
+    get:
+      tags:
+      - ModeratorPendingDomains
+      summary: List Pending Domains
+      operationId: list_pending_domains_moderator_pending_domains_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          enum:
+          - hits
+          - createdat
+          - domain
+          type: string
+          default: hits
+          title: Sortby
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          enum:
+          - asc
+          - desc
+          type: string
+          default: desc
+          title: Sortorder
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingDomainListResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/pending-domains/{domain}:
+    get:
+      tags:
+      - ModeratorPendingDomains
+      summary: Get Pending Domain Detail
+      operationId: get_pending_domain_detail_moderator_pending_domains__domain__get
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingDomainDetailDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AddModeratorBlacklistDomainRequestDTO:
+      properties:
+        domain:
+          type: string
+          minLength: 1
+          title: Domain
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        url:
+          anyOf:
+          - type: string
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Url
+      type: object
+      required:
+      - domain
+      title: AddModeratorBlacklistDomainRequestDTO
+    AddUserBlacklistInnRequestDTO:
+      properties:
+        inn:
+          type: string
+          maxLength: 12
+          minLength: 10
+          title: Inn
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - inn
+      title: AddUserBlacklistInnRequestDTO
+    AttachmentDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        originalfilename:
+          type: string
+          title: Originalfilename
+        contenttype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contenttype
+        sizebytes:
+          type: integer
+          title: Sizebytes
+        sha256:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sha256
+        storagekey:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Storagekey
+        isdeleted:
+          type: boolean
+          title: Isdeleted
+          default: false
+        createdat:
+          type: string
+          title: Createdat
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - originalfilename
+      - sizebytes
+      - createdat
+      title: AttachmentDTO
+      description: "SSoT: api-contracts.yaml#/components/schemas/AttachmentDTO
+
+NOTE:
+- API response fields use lower-without-separators:
+  originalfilename, contenttype, sizebytes, storagekey, isdeleted, createdat
+- Internally keep snake_case:
+  original_filename, content_type, size_bytes, storage_key, is_deleted, created_at"
+    AttachmentListResponseDTO:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AttachmentDTO'
+          type: array
+          title: Items
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        total:
+          type: integer
+          title: Total
+      additionalProperties: false
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - total
+      title: AttachmentListResponseDTO
+      description: 'SSoT: api-contracts.yaml /components/schemas/AttachmentListResponse'
+    AuthOtpRequestDTO:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+      type: object
+      required:
+      - email
+      title: AuthOtpRequestDTO
+    AuthOtpVerifyDTO:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        code:
+          type: string
+          maxLength: 6
+          minLength: 6
+          title: Code
+      type: object
+      required:
+      - email
+      - code
+      title: AuthOtpVerifyDTO
+    Body_upload_and_create_user_upload_and_create_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_upload_and_create_user_upload_and_create_post
+    Body_upload_attachment_user_attachments_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      type: object
+      required:
+      - file
+      title: Body_upload_attachment_user_attachments_post
+    CreateRequestManualRequestDTO:
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        keys:
+          items:
+            $ref: '#/components/schemas/RequestKeyInputDTO'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - keys
+      title: CreateRequestManualRequestDTO
+    CreateRequestResponseDTO:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        requestid:
+          type: integer
+          title: Requestid
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        status:
+          type: string
+          title: Status
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      type: object
+      required:
+      - success
+      - requestid
+      - status
+      title: CreateRequestResponseDTO
+    DomainDecisionCardDataDTO:
+      properties:
+        inn:
+          type: string
+          maxLength: 12
+          minLength: 10
+          title: Inn
+        name:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Name
+        email:
+          type: string
+          format: email
+          title: Email
+        emails:
+          anyOf:
+          - items:
+              type: string
+              format: email
+            type: array
+            maxItems: 10
+          - type: 'null'
+          title: Emails
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        comment:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Comment
+      additionalProperties: false
+      type: object
+      required:
+      - inn
+      - name
+      - email
+      title: DomainDecisionCardDataDTO
+    DomainDecisionRequestDTO:
+      properties:
+        status:
+          $ref: '#/components/schemas/DomainDecisionStatus'
+        carddata:
+          anyOf:
+          - $ref: '#/components/schemas/DomainDecisionCardDataDTO'
+          - type: 'null'
+        comment:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Comment
+      additionalProperties: false
+      type: object
+      required:
+      - status
+      title: DomainDecisionRequestDTO
+    DomainDecisionResponseDTO:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        status:
+          $ref: '#/components/schemas/DomainDecisionStatus'
+        decisionat:
+          type: string
+          title: Decisionat
+        supplierid:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Supplierid
+        card:
+          anyOf:
+          - $ref: '#/components/schemas/SupplierCardDTO'
+          - type: 'null'
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        urls:
+          items:
+            type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          type: array
+          title: Urls
+      additionalProperties: false
+      type: object
+      required:
+      - domain
+      - status
+      - decisionat
+      - urls
+      title: DomainDecisionResponseDTO
+    DomainDecisionStatus:
+      type: string
+      enum:
+      - supplier
+      - reseller
+      - blacklist
+      - pending
+      title: DomainDecisionStatus
+    GenericOkResponseDTO:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      additionalProperties: false
+      type: object
+      title: GenericOkResponseDTO
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - status
+      title: HealthResponse
+    ModeratorBlacklistDomainDTO:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        createdat:
+          type: string
+          title: Createdat
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        urls:
+          items:
+            $ref: '#/components/schemas/ModeratorBlacklistUrlItemDTO'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - domain
+      - createdat
+      - urls
+      title: ModeratorBlacklistDomainDTO
+    ModeratorBlacklistDomainListResponseDTO:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ModeratorBlacklistDomainDTO'
+          type: array
+          title: Items
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - total
+      title: ModeratorBlacklistDomainListResponseDTO
+    ModeratorBlacklistUrlItemDTO:
+      properties:
+        url:
+          type: string
+          minLength: 1
+          format: uri
+          title: Url
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        createdat:
+          type: string
+          title: Createdat
+      type: object
+      required:
+      - url
+      - createdat
+      title: ModeratorBlacklistUrlItemDTO
+    ParsingDomainGroupDTO:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        urls:
+          items:
+            type: string
+          type: array
+          title: Urls
+        source:
+          anyOf:
+          - $ref: '#/components/schemas/ParsingSource'
+          - type: 'null'
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      type: object
+      required:
+      - domain
+      - urls
+      title: ParsingDomainGroupDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingDomainGroupDTO'
+    ParsingKeyStatusDTO:
+      properties:
+        keyId:
+          type: integer
+          title: Keyid
+        status:
+          $ref: '#/components/schemas/ParsingRunStatus'
+        itemsFound:
+          type: integer
+          minimum: 0.0
+          title: Itemsfound
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - keyId
+      - status
+      - itemsFound
+      title: ParsingKeyStatusDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingKeyStatusDTO'
+    ParsingResultsByKeyDTO:
+      properties:
+        keyId:
+          type: integer
+          title: Keyid
+        groups:
+          items:
+            $ref: '#/components/schemas/ParsingDomainGroupDTO'
+          type: array
+          title: Groups
+      type: object
+      required:
+      - keyId
+      - groups
+      title: ParsingResultsByKeyDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingResultsByKeyDTO'
+    ParsingResultsResponseDTO:
+      properties:
+        requestId:
+          type: integer
+          title: Requestid
+        runId:
+          type: string
+          title: Runid
+        results:
+          items:
+            $ref: '#/components/schemas/ParsingResultsByKeyDTO'
+          type: array
+          title: Results
+      type: object
+      required:
+      - requestId
+      - runId
+      - results
+      title: ParsingResultsResponseDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingResultsResponseDTO'
+    ParsingRunStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - succeeded
+      - failed
+      title: ParsingRunStatus
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingRunStatus'
+    StartParsingRequestDTO:
+      type: object
+      additionalProperties: false
+      properties:
+        depth:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 50
+          - type: 'null'
+          title: Depth
+          description: How many search result pages to fetch per key. Default 10.
+        source:
+          anyOf:
+          - $ref: '#/components/schemas/ParsingRunSource'
+          - type: 'null'
+          title: Source
+          description: Which search engine(s) to use for this parsing run.
+      title: StartParsingRequestDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/StartParsingRequestDTO'
+
+    ParsingRunSource:
+      type: string
+      enum:
+      - google
+      - yandex
+      - both
+      title: ParsingRunSource
+      description: 'Search engine selector for parsing run (request).'
+
+    ParsingSource:
+      type: string
+      enum:
+      - google
+      - yandex
+      title: ParsingSource
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingSource'
+    ParsingStatusResponseDTO:
+      properties:
+        requestId:
+          type: integer
+          title: Requestid
+        runId:
+          type: string
+          title: Runid
+        status:
+          $ref: '#/components/schemas/ParsingRunStatus'
+        keys:
+          items:
+            $ref: '#/components/schemas/ParsingKeyStatusDTO'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - requestId
+      - runId
+      - status
+      - keys
+      title: ParsingStatusResponseDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/ParsingStatusResponseDTO'
+    PendingDomainDTO:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        totalhits:
+          type: integer
+          title: Totalhits
+        urlcount:
+          type: integer
+          title: Urlcount
+        firstseenat:
+          type: string
+          format: date-time
+          title: Firstseenat
+        lasthitat:
+          type: string
+          format: date-time
+          title: Lasthitat
+        urls:
+          items:
+            $ref: '#/components/schemas/PendingDomainUrlDTO'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - domain
+      - totalhits
+      - urlcount
+      - firstseenat
+      - lasthitat
+      - urls
+      title: PendingDomainDTO
+    PendingDomainDetailDTO:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        totalhits:
+          type: integer
+          title: Totalhits
+        urlcount:
+          type: integer
+          title: Urlcount
+        firstseenat:
+          type: string
+          format: date-time
+          title: Firstseenat
+        lasthitat:
+          type: string
+          format: date-time
+          title: Lasthitat
+        urls:
+          items:
+            $ref: '#/components/schemas/PendingDomainUrlDTO'
+          type: array
+          title: Urls
+      type: object
+      required:
+      - domain
+      - totalhits
+      - urlcount
+      - firstseenat
+      - lasthitat
+      - urls
+      title: PendingDomainDetailDTO
+    PendingDomainListResponseDTO:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PendingDomainDTO'
+          type: array
+          title: Items
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - total
+      title: PendingDomainListResponseDTO
+    PendingDomainUrlDTO:
+      properties:
+        url:
+          type: string
+          title: Url
+        hitcount:
+          type: integer
+          title: Hitcount
+        keys:
+          items:
+            type: string
+          type: array
+          title: Keys
+      type: object
+      required:
+      - url
+      - hitcount
+      - keys
+      title: PendingDomainUrlDTO
+    RecipientDTO:
+      properties:
+        supplierid:
+          type: integer
+          minimum: 1.0
+          title: Supplierid
+        selected:
+          type: boolean
+          title: Selected
+      type: object
+      required:
+      - supplierid
+      - selected
+      title: RecipientDTO
+    RecipientsResponseDTO:
+      properties:
+        recipients:
+          items:
+            $ref: '#/components/schemas/RecipientDTO'
+          type: array
+          title: Recipients
+      type: object
+      required:
+      - recipients
+      title: RecipientsResponseDTO
+    RequestDetailDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        status:
+          type: string
+          title: Status
+        createdat:
+          type: string
+          title: Createdat
+        keys:
+          items:
+            $ref: '#/components/schemas/RequestKeyDTO'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - id
+      - status
+      - createdat
+      - keys
+      title: RequestDetailDTO
+    RequestKeyDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        pos:
+          type: integer
+          title: Pos
+        rawtext:
+          type: string
+          title: Rawtext
+        normalizedtext:
+          type: string
+          title: Normalizedtext
+        qty:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Qty
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        suppliers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Suppliers
+      type: object
+      required:
+      - id
+      - pos
+      - rawtext
+      - normalizedtext
+      - suppliers
+      title: RequestKeyDTO
+    RequestKeyInputDTO:
+      properties:
+        pos:
+          type: integer
+          minimum: 1.0
+          title: Pos
+        text:
+          type: string
+          minLength: 1
+          title: Text
+        qty:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Qty
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      type: object
+      required:
+      - pos
+      - text
+      title: RequestKeyInputDTO
+    RequestListResponseDTO:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RequestSummaryDTO'
+          type: array
+          title: Items
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - total
+      title: RequestListResponseDTO
+    RequestSummaryDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        status:
+          type: string
+          title: Status
+        createdat:
+          type: string
+          title: Createdat
+        keyscount:
+          type: integer
+          title: Keyscount
+      type: object
+      required:
+      - id
+      - status
+      - createdat
+      - keyscount
+      title: RequestSummaryDTO
+    StartParsingResponseDTO:
+      properties:
+        requestId:
+          type: integer
+          title: Requestid
+        runId:
+          type: string
+          title: Runid
+        status:
+          $ref: '#/components/schemas/ParsingRunStatus'
+      type: object
+      required:
+      - requestId
+      - runId
+      - status
+      title: StartParsingResponseDTO
+      description: 'SSoT: api-contracts.yaml#/components/schemas/StartParsingResponseDTO'
+    SubmitRequestResponseDTO:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        requestid:
+          type: integer
+          title: Requestid
+        newstatus:
+          type: string
+          title: Newstatus
+        matchedsuppliers:
+          type: integer
+          title: Matchedsuppliers
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      type: object
+      required:
+      - requestid
+      - newstatus
+      - matchedsuppliers
+      title: SubmitRequestResponseDTO
+    SupplierCardDTO:
+      properties:
+        supplierid:
+          type: integer
+          title: Supplierid
+        type:
+          $ref: '#/components/schemas/SupplierCardType'
+        inn:
+          type: string
+          title: Inn
+        name:
+          type: string
+          title: Name
+        email:
+          type: string
+          format: email
+          title: Email
+        emails:
+          anyOf:
+          - items:
+              type: string
+              format: email
+            type: array
+          - type: 'null'
+          title: Emails
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        urls:
+          items:
+            type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          type: array
+          title: Urls
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        createdat:
+          type: string
+          title: Createdat
+        updatedat:
+          type: string
+          title: Updatedat
+        checko:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Checko
+      additionalProperties: false
+      type: object
+      required:
+      - supplierid
+      - type
+      - inn
+      - name
+      - email
+      - urls
+      - createdat
+      - updatedat
+      title: SupplierCardDTO
+    SupplierCardType:
+      type: string
+      enum:
+      - supplier
+      - reseller
+      title: SupplierCardType
+    UpdateRecipientsRequestDTO:
+      properties:
+        recipients:
+          items:
+            $ref: '#/components/schemas/RecipientDTO'
+          type: array
+          title: Recipients
+      type: object
+      required:
+      - recipients
+      title: UpdateRecipientsRequestDTO
+    UpdateRequestKeysRequestDTO:
+      properties:
+        keys:
+          items:
+            $ref: '#/components/schemas/RequestKeyInputDTO'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - keys
+      title: UpdateRequestKeysRequestDTO
+    UserBlacklistInnItemDTO:
+      properties:
+        id:
+          type: integer
+          title: Id
+        inn:
+          type: string
+          title: Inn
+        supplierid:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Supplierid
+        suppliername:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Suppliername
+        checkodata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Checkodata
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        createdat:
+          type: string
+          title: Createdat
+      type: object
+      required:
+      - id
+      - inn
+      - createdat
+      title: UserBlacklistInnItemDTO
+    UserBlacklistInnListResponseDTO:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/UserBlacklistInnItemDTO'
+          type: array
+          title: Items
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - items
+      - limit
+      - offset
+      - total
+      title: UserBlacklistInnListResponseDTO
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

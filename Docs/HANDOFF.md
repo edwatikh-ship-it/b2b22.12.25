@@ -431,3 +431,4 @@ GET /moderator/pending-domains → [] (resolved)
   - Note: Prompt\* folders are local-only, not SSoT, and may be cleaned up after HANDOFF/INCIDENTS are updated in root.
 
 - 2025-12-22 17:13:30 MSK: PostgreSQL credentials stored: postgres password=Jnvnszoe5971312059001, b2buser password=12059001, host=127.0.0.1:5432, db=b2bplatform. Service postgresql-x64-16 running. Git: main@bc7a741 clean.
+- 2025-12-22 17:16:20 MSK: Tests passed 39/40 (1 skipped). Alembic head c4b1499dcaf9. PYTHONPATH=D:\b2b\backend for alembic/pytest. api-contracts.yaml copied to backend/ for contract tests (no admin for symlink). Commit 6233dee pushed.
