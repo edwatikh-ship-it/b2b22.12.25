@@ -14,6 +14,6 @@ repos:
         pass_filenames: false                                                                                            
       - id: validate-openapi-contract                                                       
         name: validate OpenAPI contract (paths start with /)                                
-        entry: python tools/validate_openapi_contract.py api-contracts.yaml                 
+        entry: python tools/validate_openapi_contract.py Docs/api-contracts.yaml                 
         language: system                                                                    
         pass_filenames: false                                                               
