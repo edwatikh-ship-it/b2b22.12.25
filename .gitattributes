@@ -1,0 +1,31 @@
+# Normalize line endings: store text as LF in the repo
+* text=auto
+
+# Force LF for code/config/docs (avoid Windows CRLF surprises)
+*.py   text eol=lf
+*.ps1  text eol=lf
+*.psm1 text eol=lf
+*.psd1 text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.ini  text eol=lf
+*.env  text eol=lf
+*.sh   text eol=lf
+
+# Common binaries
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.7z   binary
+*.woff binary
+*.woff2 binary

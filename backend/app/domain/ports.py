@@ -1,0 +1,36 @@
+from typing import Protocol
+
+
+class RequestRepositoryPort(Protocol):
+    async def create_draft(self, title: str | None, keys: list[dict]) -> int: ...
+
+    async def get_detail(self, request_id: int) -> dict | None: ...
+
+    async def update_keys(self, request_id: int, keys: list[dict]) -> None: ...
+
+    async def submit_request(self, request_id: int) -> dict: ...
+
+
+class AttachmentRepositoryPort:
+    async def create(
+        self,
+        *,
+        title: str | None,
+        original_filename: str,
+        content_type: str | None,
+        size_bytes: int,
+        sha256: str | None,
+        storage_key: str | None,
+    ) -> dict: ...
+
+    async def list(self, *, limit: int, offset: int) -> dict: ...
+
+    async def get(self, attachment_id: int) -> dict | None: ...
+
+    async def soft_delete(self, attachment_id: int) -> None: ...
+
+
+class UserBlacklistInnRepositoryPort(Protocol):
+    async def add_inn(self, user_id: int, inn: str, reason: str | None) -> None: ...
+    async def remove_inn(self, user_id: int, inn: str) -> None: ...
+    async def list_inns(self, user_id: int, limit: int) -> list[dict]: ...

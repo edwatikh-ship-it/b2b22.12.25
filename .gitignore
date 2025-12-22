@@ -1,0 +1,54 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Virtualenv
+backend/.venv/
+.venv/
+
+# Local env files (do not commit)
+backend/.env
+backend/backend.env
+
+# Backups / scratch
+*.bak
+*.bak.*
+*.tmp
+
+# Runtime artifacts
+openapi-runtime.json
+backend/openapi-runtime.json
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/# local-only env (do not commit secrets)
+backend.env
+
+# local artifacts
+openapi-diff.csv
+prompt/
+
+openapi.json
+
+
+# Logs
+# parser_service/*.log (moved to app/)
+
+
+# local debug scripts
+backend/tmp_db_check*.py
+# Local artifacts (backups/tmp) - do not commit
+.tmp/
+
+# --- repo hygiene (artifacts) ---
+.tmp/
+.backups*/
+
+# Runtime storage (local-only)
+storage/
+# Logs (root)
+parser.log
+*.log

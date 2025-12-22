@@ -1,0 +1,189 @@
+PROJECT TREE (key artifacts)
+Generated: 2025-12-21 02:23:32
+
+KEY POINTS (what to edit, where)
+SSoT
+  api-contracts.yaml                       - API contract and DTO shapes (SSoT).
+Docs / rules
+  PROJECT-RULES.md                         - Process rules (SSoT for workflow).
+  PROJECT-DOC.md                           - Product/behavior documentation.
+  DECISIONS.md                             - Important decisions (fact-only).
+Logs (append-only)
+  HANDOFF.md                               - Success log with verification.
+  INCIDENTS.md                             - Failure log with fix + verification.
+Backend entrypoints
+  backend\app\main.py                       - FastAPI app wiring (routers, lifespan).
+Contract enforcement
+  backend\tests\contract\test_openapi_paths_match_contract.py - OpenAPI vs SSoT paths test.
+HTTP routers
+  backend\app\transport\routers\            - HTTP endpoints (FastAPI routers).
+DTO schemas
+  backend\app\transport\schemas\            - Request/response DTOs.
+Use cases
+  backend\app\usecases\                     - Business flows orchestration.
+Domain
+  backend\app\domain\                       - Pure models and ports.
+DB adapters
+  backend\app\adapters\db\                  - SQLAlchemy models/repositories/session.
+Migrations
+  backend\alembic\                          - Alembic config + migrations.
+Tooling
+  tools\preflight.ps1                       - Pre-flight checks (base url / openapi / deps).
+  tools\update_project_tree.ps1             - Regenerate PROJECT-TREE.txt (this script).
+  tools\validate_openapi_contract.py        - Contract validation helper.
+  tools\openapi_diff.py                     - Diff runtime OpenAPI vs SSoT.
+  tools\doc_edit.py                         - Deterministic doc patcher (anchors + backups).
+
+.gitattributes
+.gitignore
+.pre-commit-config.yaml
+api-contracts.yaml
+backend\alembic\env.py
+backend\alembic\script.py.mako
+backend\alembic\versions\0dc050e5c206_attachments.py
+backend\alembic\versions\3315ed698ecb_init.py
+backend\alembic\versions\34c18afc8fbc_create_user_blacklist_inn.py
+backend\alembic\versions\3cd1f73d7395_create_users_table.py
+backend\alembic\versions\4a17327d9f63_merge_heads.py
+backend\alembic\versions\5101a0517140_create_blacklist_domain_url_items.py
+backend\alembic\versions\552d97f8cc92_create_requests_and_keys_tables.py
+backend\alembic\versions\687ead051921_create_request_recipients_table.py
+backend\alembic\versions\6fdf6afd7f77_rename_userid_createdat_columns_in_user_.py
+backend\alembic\versions\9458942023a4_merge_heads.py
+backend\alembic\versions\9a051d01a91c_blacklist_domains_comment_urls.py
+backend\alembic\versions\9d40af57b9c5_create_suppliers_tables.py
+backend\alembic\versions\a291dc92b69a_create_users_and_otp_codes.py
+backend\alembic\versions\b21b2a3bb6ee_create_blacklist_domains.py
+backend\alembic\versions\bbff04c57403_create_attachments_table.py
+backend\alembic\versions\be4136aa1c68_request_recipients_defaults.py
+backend\alembic\versions\c4b1499dcaf9_create_domain_decisions.py
+backend\alembic\versions\c56fcd5c76e3_rename_userid_createdat_columns_in_user_.py
+backend\alembic\versions\de99d41dff72_create_user_blacklist_inn.py
+backend\alembic\versions\ea4ad222417f_create_request_recipients_table.py
+backend\alembic\versions\fbb98b9e9fc9_add_request_recipients.py
+backend\app\__init__.py
+backend\app\adapters\__init__.py
+backend\app\adapters\checko\client.py
+backend\app\adapters\db\__init__.py
+backend\app\adapters\db\models.py
+backend\app\adapters\db\repositories.py
+backend\app\adapters\db\session.py
+backend\app\adapters\jwt\service.py
+backend\app\adapters\not_implemented\user_blacklist_inn.py
+backend\app\adapters\parsing_storage.py
+backend\app\adapters\storage\__init__.py
+backend\app\adapters\storage\filestorage.py
+backend\app\config.py
+backend\app\domain\__init__.py
+backend\app\domain\blacklist_ports\__init__.py
+backend\app\domain\blacklist_ports\user_blacklist_inn.py
+backend\app\domain\models\user_blacklist_inn.py
+backend\app\domain\ports.py
+backend\app\domain\ports\user_blacklist_inn.py
+backend\app\domain\ports_auth.py
+backend\app\main.py
+backend\app\transport\__init__.py
+backend\app\transport\errors.py
+backend\app\transport\parsing.py
+backend\app\transport\routers\__init__.py
+backend\app\transport\routers\attachments.py
+backend\app\transport\routers\auth.py
+backend\app\transport\routers\health.py
+backend\app\transport\routers\moderator_blacklist_domains.py
+backend\app\transport\routers\moderator_domain_decision.py
+backend\app\transport\routers\moderator_parsing_runs.py
+backend\app\transport\routers\moderator_pending_domains.py
+backend\app\transport\routers\moderator_suppliers.py
+backend\app\transport\routers\moderator_tasks.py
+backend\app\transport\routers\requests.py
+backend\app\transport\routers\suppliers.py
+backend\app\transport\routers\user_blacklist_inn.py
+backend\app\transport\routers\user_messaging.py
+backend\app\transport\routers\user_upload_and_create.py
+backend\app\transport\schemas\__init__.py
+backend\app\transport\schemas\attachments.py
+backend\app\transport\schemas\auth.py
+backend\app\transport\schemas\blacklist.py
+backend\app\transport\schemas\common.py
+backend\app\transport\schemas\health.py
+backend\app\transport\schemas\moderator_blacklist_domains.py
+backend\app\transport\schemas\moderator_domain_decision.py
+backend\app\transport\schemas\moderator_parsing.py
+backend\app\transport\schemas\moderator_parsing_runs.py
+backend\app\transport\schemas\moderator_pending_domains.py
+backend\app\transport\schemas\requests.py
+backend\app\transport\schemas\supplier_cards.py
+backend\app\transport\schemas\suppliers.py
+backend\app\transport\schemas\user_blacklist_inn.py
+backend\app\transport\schemas\user_messaging.py
+backend\app\usecases\__init__.py
+backend\app\usecases\add_user_blacklist_inn.py
+backend\app\usecases\auth\get_me.py
+backend\app\usecases\auth\request_otp.py
+backend\app\usecases\auth\verify_otp.py
+backend\app\usecases\create_request_manual.py
+backend\app\usecases\delete_attachment.py
+backend\app\usecases\download_attachment.py
+backend\app\usecases\get_attachment.py
+backend\app\usecases\list_attachments.py
+backend\app\usecases\list_user_blacklist_inn.py
+backend\app\usecases\remove_user_blacklist_inn.py
+backend\app\usecases\search_suppliers.py
+backend\app\usecases\submit_request.py
+backend\app\usecases\update_email_policy.py
+backend\app\usecases\update_request_keys.py
+backend\app\usecases\update_request_recipients.py
+backend\app\usecases\upload_attachment.py
+backend\app\usecases\user_blacklist_inn\__init__.py
+backend\app\usecases\user_blacklist_inn\add.py
+backend\app\usecases\user_blacklist_inn\list.py
+backend\app\usecases\user_blacklist_inn\remove.py
+backend\tests\contract\test_openapi_paths_match_contract.py
+backend\tests\integration\test_attachments.py
+backend\tests\integration\test_attachments_contract_camelcase.py
+backend\tests\integration\test_auth_me.py
+backend\tests\integration\test_auth_oauth_google.py
+backend\tests\integration\test_auth_policy.py
+backend\tests\integration\test_auth_policy_persist.py
+backend\tests\integration\test_create_request_manual.py
+backend\tests\integration\test_get_user_request_detail.py
+backend\tests\integration\test_list_user_requests.py
+backend\tests\integration\test_messaging_not_implemented.py
+backend\tests\integration\test_moderator_blacklist_domains.py
+backend\tests\integration\test_moderator_suppliers.py
+backend\tests\integration\test_moderator_tasks.py
+backend\tests\integration\test_recipients_replace_all.py
+backend\tests\integration\test_submit_request.py
+backend\tests\integration\test_suppliers_search.py
+backend\tests\integration\test_update_request_keys.py
+backend\tests\integration\test_user_blacklist_inn.py
+backend\tests\integration\test_user_upload_and_create.py
+backend\tests\unit\test_auth_otp_usecases.py
+DECISIONS.md
+HANDOFF.md
+INCIDENTS.md
+justfile
+PROJECT-DOC.md
+PROJECT-RULES.md
+PROJECT-TREE.txt
+README.md
+tools\append_handoff_incidents.ps1
+tools\check_suppliers_tables.py
+tools\doc_edit.py
+tools\log_success.ps1
+tools\new_chat_prompt.ps1
+tools\new_chat_prompt2.ps1
+tools\new-chat-bundle.ps1
+tools\openapi_diff.py
+tools\parserservice-dev.ps1
+tools\patch_api_contracts_parser.py
+tools\patch_openapi_diff.py
+tools\preflight.ps1
+tools\print_new_chat_prompt.ps1
+tools\pytest.ps1
+tools\regen_logs.py
+tools\set_limit_max_200.py
+tools\start_chrome_cdp.ps1
+tools\TOOLS-README.md
+tools\update_project_tree.ps1
+tools\validate_openapi_contract.pyB2B/parser_service/                 # FastAPI + Playwright CDP scraper (port 8001)
