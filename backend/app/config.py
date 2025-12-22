@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     CHECKO_API_KEY: str = Field(
         default="", validation_alias=AliasChoices("CHECKO_API_KEY", "CHECKOAPIKEY")
     )
+    
+    PARSER_SERVICE_URL: str = Field(
+        default="http://127.0.0.1:9001",
+        validation_alias=AliasChoices("PARSER_SERVICE_URL", "PARSERSERVICEURL")
+    )
 
     @property
     def DATABASE_URL(self) -> str:

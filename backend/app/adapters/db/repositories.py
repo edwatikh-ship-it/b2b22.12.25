@@ -10,6 +10,11 @@ from app.adapters.db.models import (
     DomainBlacklistDomainModel,
     DomainBlacklistUrlModel,
     DomainDecisionModel,
+    ModeratorSupplierModel,
+    ParsingHitModel,
+    ParsingRequestModel,
+    ParsingRunLogModel,
+    ParsingRunModel,
     RequestKeyModel,
     RequestModel,
     RequestRecipientModel,
@@ -528,3 +533,210 @@ class DomainDecisionRepository:
             return
         await self._session.delete(obj)
         await self._session.commit()
+
+
+class ParsingRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def create_parsing_request(
+        self,
+        raw_keys_json: str | None = None,
+        depth: int | None = None,
+        source: str | None = None,
+        comment: str | None = None,
+        title: str | None = None,
+        created_by: int | None = None,
+    ) -> ParsingRequestModel:
+        req = ParsingRequestModel(
+            raw_keys_json=raw_keys_json,
+            depth=depth,
+            source=source,
+            comment=comment,
+            title=title,
+            created_by=created_by,
+        )
+        self._session.add(req)
+        await self._session.flush()
+        return req
+
+    async def create_parsing_run(
+        self,
+        run_id: str,
+        request_id: int,
+        status: str,
+        depth: int | None = None,
+        source: str | None = None,
+        parser_task_id: str | None = None,
+    ) -> ParsingRunModel:
+        run = ParsingRunModel(
+            run_id=run_id,
+            request_id=request_id,
+            status=status,
+            depth=depth,
+            source=source,
+            parser_task_id=parser_task_id,
+        )
+        self._session.add(run)
+        await self._session.flush()
+        return run
+
+    async def get_parsing_run_by_run_id(self, run_id: str) -> ParsingRunModel | None:
+        stmt = select(ParsingRunModel).where(ParsingRunModel.run_id == run_id)
+        result = await self._session.execute(stmt)
+        return result.scalars().first()
+
+    async def get_parsing_runs_by_prefix(self, run_id_prefix: str) -> list[ParsingRunModel]:
+        stmt = select(ParsingRunModel).where(ParsingRunModel.run_id.like(f"{run_id_prefix}%"))
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def update_parsing_run_status(
+        self,
+        run_id: str,
+        status: str,
+        error_message: str | None = None,
+        finished_at: datetime | None = None,
+    ) -> None:
+        stmt = select(ParsingRunModel).where(ParsingRunModel.run_id == run_id)
+        result = await self._session.execute(stmt)
+        run = result.scalars().first()
+        if run:
+            run.status = status
+            if error_message is not None:
+                run.error_message = error_message
+            if finished_at is not None:
+                run.finished_at = finished_at
+            await self._session.flush()
+
+    async def list_parsing_runs(
+        self, limit: int = 50, offset: int = 0
+    ) -> list[ParsingRunModel]:
+        stmt = (
+            select(ParsingRunModel)
+            .order_by(ParsingRunModel.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def create_parsing_hit(
+        self,
+        run_id: int,
+        keyword: str,
+        url: str,
+        domain: str,
+        source: str,
+        key_id: int | None = None,
+        title: str | None = None,
+    ) -> ParsingHitModel:
+        hit = ParsingHitModel(
+            run_id=run_id,
+            key_id=key_id,
+            keyword=keyword,
+            url=url,
+            domain=domain,
+            source=source,
+            title=title,
+        )
+        self._session.add(hit)
+        await self._session.flush()
+        return hit
+
+    async def get_hits_by_run_id(self, run_id: int) -> list[ParsingHitModel]:
+        stmt = select(ParsingHitModel).where(ParsingHitModel.run_id == run_id)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_blacklisted_domains(self) -> set[str]:
+        stmt = select(DomainBlacklistDomainModel.root_domain)
+        result = await self._session.execute(stmt)
+        return set(result.scalars().all())
+
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def create_log(
+        self, run_id: int, level: str, message: str, context: str | None = None
+    ):
+        log = ParsingRunLogModel(run_id=run_id, level=level, message=message, context=context)
+        self._session.add(log)
+        await self._session.flush()
+        return log
+
+    async def get_logs_by_run_id(self, run_id: int):
+        stmt = select(ParsingRunLogModel).where(ParsingRunLogModel.run_id == run_id).order_by(ParsingRunLogModel.timestamp)
+        result = await self._session.execute(stmt)
+        return list(result.scalars().all())
+
+
+class ModeratorSupplierRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def list_suppliers(
+        self, q: str | None, type_filter: str | None, limit: int, offset: int, sort: str | None
+    ):
+        stmt = select(ModeratorSupplierModel)
+        
+        if q:
+            search_pattern = f"%{q}%"
+            stmt = stmt.where(
+                (ModeratorSupplierModel.name.ilike(search_pattern))
+                | (ModeratorSupplierModel.inn.ilike(search_pattern))
+                | (ModeratorSupplierModel.email.ilike(search_pattern))
+            )
+        
+        if type_filter:
+            stmt = stmt.where(ModeratorSupplierModel.type == type_filter)
+        
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = await self._session.scalar(count_stmt) or 0
+        
+        if sort == "name_asc":
+            stmt = stmt.order_by(ModeratorSupplierModel.name.asc())
+        elif sort == "name_desc":
+            stmt = stmt.order_by(ModeratorSupplierModel.name.desc())
+        elif sort == "created_at_desc":
+            stmt = stmt.order_by(ModeratorSupplierModel.created_at.desc())
+        else:
+            stmt = stmt.order_by(ModeratorSupplierModel.created_at.desc())
+        
+        stmt = stmt.limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        items = list(result.scalars().all())
+        
+        return items, total
+
+    async def create_supplier(
+        self, name: str, inn: str | None, email: str | None, domain: str | None, type_: str
+    ):
+        supplier = ModeratorSupplierModel(
+            name=name, inn=inn, email=email, domain=domain, type=type_
+        )
+        self._session.add(supplier)
+        await self._session.flush()
+        await self._session.commit()
+        return supplier
+
+    async def get_supplier_by_id(self, supplier_id: int):
+        stmt = select(ModeratorSupplierModel).where(ModeratorSupplierModel.id == supplier_id)
+        result = await self._session.execute(stmt)
+        return result.scalars().first()
+
+    async def update_supplier(
+        self, supplier_id: int, updates: dict
+    ):
+        supplier = await self.get_supplier_by_id(supplier_id)
+        if not supplier:
+            return None
+        
+        for key, value in updates.items():
+            if hasattr(supplier, key):
+                setattr(supplier, key, value)
+        
+        supplier.updated_at = datetime.now(UTC)
+        await self._session.flush()
+        await self._session.commit()
+        return supplier

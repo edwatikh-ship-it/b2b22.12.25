@@ -719,7 +719,34 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ParsingResultsResponseDTO'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/parsing-runs/{runId}/logs:
+    get:
+      tags:
+      - ModeratorTasks
+      summary: Get Parsing Run Logs
+      operationId: get_parsing_run_logs_moderator_parsing_runs__runId__logs_get
+      parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Runid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsingRunLogResponseDTO'
         '422':
           description: Validation Error
           content:
@@ -1077,7 +1104,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ModeratorSupplierDTO'
         '422':
           description: Validation Error
           content:
@@ -1101,15 +1129,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: true
-              title: Payload
+              $ref: '#/components/schemas/UpdateModeratorSupplierRequestDTO'
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/ModeratorSupplierDTO'
         '422':
           description: Validation Error
           content:
@@ -1300,6 +1327,76 @@ paths:
           content:
             application/json:
               schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /moderator/keywords:
+    get:
+      tags:
+      - ModeratorKeywords
+      summary: List Keywords Base
+      operationId: list_keywords_moderator_keywords_get
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Q
+          description: Substring search in keyword text
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            enum:
+            - pending
+            - parsed
+            - failed
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - keyword_asc
+          - keyword_desc
+          - created_at_desc
+          - created_at_asc
+          default: keyword_asc
+          title: Sort
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordsListResponseDTO'
         '422':
           description: Validation Error
           content:

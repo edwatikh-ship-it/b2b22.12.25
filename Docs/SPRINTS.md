@@ -63,8 +63,18 @@ Done:
   - GET /moderator/parsing-runs/{runId}.
 - [x] Добавлены 6 интеграционных тестов tests/integration/test_parsing_endpoints.py; общий прогон: 45 passed, 1 skipped.
 
+## 2025-12-22  Moderator LK (backend + UI wired)
+
+Goal:
+- Make Moderator LK fully work on real DB data: backend endpoints + Next.js dashboard.
+
+Done:
+- [x] Implemented real Moderator LK endpoints (keywords, suppliers, parsing logs) and removed mocks.
+- [x] Added DB models moderator_suppliers and parsing_run_logs with Alembic migrations.
+- [x] Wired moderator-dashboard-ui frontend to http://127.0.0.1:8001 via typed lib/api.ts.
+- [x] Fixed Next dev startup (tsconfig.json: "jsx": "react-jsx" for Next 16 + React 19).
+- [x] Verified manual parsing, runs history, keywords base and suppliers catalog end-to-end.
+
 Next:
-- [ ] Добавить отдельный эндпоинт для ручного парсинга по строке:
-      POST /moderator/manual-parsing с телом {keyword, depth, source},
-      использовать те же parsing_runs/parsing_hits, что и для заявок.
-- [ ] Спроектировать и реализовать UI-экран "Ручной парсинг" (отдельная страница в ЛК модератора).
+- [ ] UI polish for Moderator LK (filters, actions, compact tables).
+- [ ] Parser service: support parsing source (google/yandex/both) fully.
