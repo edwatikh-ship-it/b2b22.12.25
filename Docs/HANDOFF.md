@@ -429,3 +429,5 @@ GET /moderator/pending-domains → [] (resolved)
     - PowerShell: Set-Location D:\b2b; Select-String -Path .\Docs\PROJECT-RULES.md -SimpleMatch 'New chat bootstrap (Prompt folder)'  # found
     - PowerShell: Select-String -Path .\Docs\DOCS-INDEX.md -SimpleMatch 'Prompt<'  # found
   - Note: Prompt\* folders are local-only, not SSoT, and may be cleaned up after HANDOFF/INCIDENTS are updated in root.
+
+- 2025-12-22 17:13:30 MSK: PostgreSQL credentials stored: postgres password=Jnvnszoe5971312059001, b2buser password=12059001, host=127.0.0.1:5432, db=b2bplatform. Service postgresql-x64-16 running. Git: main@bc7a741 clean.
