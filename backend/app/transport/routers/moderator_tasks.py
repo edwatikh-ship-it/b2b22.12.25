@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from fastapi import APIRouter, HTTPException, Path
 
 router = APIRouter(tags=["ModeratorTasks"], prefix="/moderator")
