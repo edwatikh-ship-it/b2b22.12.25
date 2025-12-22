@@ -403,3 +403,11 @@ GET /moderator/pending-domains → [] (resolved)
 - Запуск: `cd B2B/parser_service && uvicorn app.main:app --port 8001 --reload`
 - Health: http://localhost:8001/health ✅
 - Docs: http://localhost:8001/docs ✅
+- 2025-12-22 16:25 MSK
+  - What: Created clean backend sandbox in D:\b2b with Postgres DATABASE_URL and synced it to new GitHub repo https://github.com/edwatikh-ship-it/b2b22.12.25.
+  - Why: Separate clean development environment from legacy D:\b2bplatform and keep a simple, reproducible setup for future work.
+  - Verify:
+    - PowerShell: Set-Location D:\b2b\backend; .\.venv\Scripts\Activate.ps1; uvicorn app.main:app --host 127.0.0.1 --port 8001
+    - PowerShell: Invoke-RestMethod http://127.0.0.1:8001/health  # status ok
+    - PowerShell: Invoke-RestMethod "http://127.0.0.1:8001/user/requests?limit=1&offset=0"  # 200 with items, total > 0
+    - PowerShell: Set-Location D:\b2b; git remote get-url origin  # https://github.com/edwatikh-ship-it/b2b22.12.25

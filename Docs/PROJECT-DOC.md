@@ -93,3 +93,16 @@ Added: 2025-12-20 11:52:48 MSK.
 Fact: HANDOFF.md and INCIDENTS.md contain historical mojibake/garbled sequences from earlier edits; full decoding is TBD.
 Rule: Do not bulk-rewrite append-only logs to 'clean' encoding without verified decoding; prefer adding corrections/notes and keep SSoT files (api-contracts.yaml) clean.
 Verification: Select-String -Path .\api-contracts.yaml -SimpleMatch -Pattern 'Ð\x','Ñ\x' -Quiet -> Expected: False.
+
+## Clean backend sandbox (D:\b2b, GitHub b2b22.12.25)
+
+- Code and env:
+  - Local path: D:\b2b (backend/, .venv/, Docs/, justfile).
+  - DATABASE_URL points to PostgreSQL: postgresql+asyncpg://b2buser:****@127.0.0.1:5432/b2bplatform (same as original project).
+- Git:
+  - Clean standalone repository: https://github.com/edwatikh-ship-it/b2b22.12.25
+  - Purpose: sandbox for contract-driven backend work, separate from legacy D:\b2bplatform history.
+- Runtime:
+  - Start: cd D:\b2b\backend; .\.venv\Scripts\Activate.ps1; uvicorn app.main:app --host 127.0.0.1 --port 8001
+  - Health: GET /health -> {"status": "ok"}
+  - User requests: GET /user/requests?limit=1&offset=0 -> 200 with items from PostgreSQL.

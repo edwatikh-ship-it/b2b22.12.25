@@ -23,3 +23,9 @@ This file explains what each top-level documentation file means and where it liv
 
 ## Where these files live
 All files above must live in the repo root D:\b2bplatform (SSoT rule: no duplicates in backend\).
+
+## Sandbox snapshot 2025-12-22
+
+- Local sandbox root: D:\b2b
+- GitHub repo: https://github.com/edwatikh-ship-it/b2b22.12.25
+- Docs for this snapshot live in D:\b2b\Docs (same structure as root repo docs).
