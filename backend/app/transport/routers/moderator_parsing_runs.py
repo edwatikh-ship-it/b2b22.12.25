@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, Path
 
 router = APIRouter(tags=["ModeratorTasks"])
 
@@ -26,8 +27,8 @@ async def list_parsing_runs(
     }
 
 
-@router.get("/moderator/parsing-runs/{run_id}", response_model=dict)
-async def get_parsing_run_detail(run_id: str):
+@router.get("/moderator/parsing-runs/{runId}", response_model=dict)
+async def get_parsing_run_detail(run_id: Annotated[str, Path(alias="runId")]):
     if run_id not in parsing_runs_storage:
         raise HTTPException(status_code=404, detail="Run not found")
     return parsing_runs_storage[run_id]

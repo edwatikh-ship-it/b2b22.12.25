@@ -41,3 +41,21 @@ Root cause: Missing mandatory preflight check (Select-String scan) before confir
 Fix/Mitigation: Add mandatory doc-scan step before any 'docs OK' statement; block progress until scan is clean.
 Verification: Run the doc scan (see commands below) and require zero matches before confirming.
 Files touched: INCIDENTS.md
+
+## Incident: 2025-12-22 17:20 MSK - Path params camelCase mismatch
+
+**Context**: Bootstrap new chat, running pytest after PostgreSQL setup.
+
+**Symptom**: Contract test failed: Extra paths ['/moderator/parsing-runs/{run_id}', '/moderator/tasks/{task_id}'] not in SSoT api-contracts.yaml.
+
+**Root cause**: Backend code used snake_case path params (task_id, run_id), but api-contracts.yaml defines camelCase (taskId, runId). FastAPI generated OpenAPI with snake_case, violating SSoT.
+
+**Fix**: Added Pydantic Path alias in moderator_tasks.py and moderator_parsing_runs.py: `task_id: Annotated[str, Path(alias="taskId")]` and `run_id: Annotated[str, Path(alias="runId")]`. Updated route decorators to use {taskId}/{runId}.
+
+**Mitigation**: All contract tests now pass (2/2). pytest: 39 passed, 1 skipped.
+
+**Verification commands + expected output**:
+- `python -m pytest tests/contract/test_openapi_paths_match_contract.py -v` → 2 passed
+- `python -m pytest -q` → 39 passed, 1 skipped
+
+**Files touched**: backend/app/transport/routers/moderator_tasks.py, backend/app/transport/routers/moderator_parsing_runs.py, Docs/INCIDENTS.md, Docs/HANDOFF.md.
