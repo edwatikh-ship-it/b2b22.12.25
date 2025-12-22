@@ -187,3 +187,10 @@ tools\start_chrome_cdp.ps1
 tools\TOOLS-README.md
 tools\update_project_tree.ps1
 tools\validate_openapi_contract.pyB2B/parser_service/                 # FastAPI + Playwright CDP scraper (port 8001)
+
+Docs\SPRINTS.md
+- Sprint planning document.
+- Contains sprint goals, dates, and done/next items; update continuously.
+
+tmp\backend\
+- Local-only scratch area for backend backups (*.bak.*) and temporary files; excluded from repo.

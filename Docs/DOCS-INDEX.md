@@ -29,3 +29,10 @@ All files above must live in the repo root D:\b2bplatform (SSoT rule: no duplica
 - Local sandbox root: D:\b2b
 - GitHub repo: https://github.com/edwatikh-ship-it/b2b22.12.25
 - Docs for this snapshot live in D:\b2b\Docs (same structure as root repo docs).
+
+- SPRINTS.md
+  - Sprint plan and status.
+  - Living checklist of goals per sprint; update dates, goals, and checkboxes as work progresses.
+- tmp\backend (local only, not in repo)
+  - Storage for temporary .bak and tmp-* files from backend to keep source tree clean.
+  - May be safely cleaned up; never treat it as SSoT.

@@ -411,3 +411,13 @@ GET /moderator/pending-domains → [] (resolved)
     - PowerShell: Invoke-RestMethod http://127.0.0.1:8001/health  # status ok
     - PowerShell: Invoke-RestMethod "http://127.0.0.1:8001/user/requests?limit=1&offset=0"  # 200 with items, total > 0
     - PowerShell: Set-Location D:\b2b; git remote get-url origin  # https://github.com/edwatikh-ship-it/b2b22.12.25
+
+- 2025-12-22 16:35 MSK
+  - What: Cleaned D:\b2b\backend from *.bak.* and tmp-* files by moving them into D:\b2b\tmp\backend and documented tmp/SPRINTS usage.
+  - Why: Keep backend tree readable while keeping safety backups and sprint plan discoverable.
+  - Verify:
+    - PowerShell: Set-Location D:\b2b; Get-ChildItem .\backend -Recurse -Filter '*.bak.*'  # no output
+    - PowerShell: Get-ChildItem D:\b2b\tmp\backend  # shows backup .py.bak.* files only
+    - PowerShell: Select-String -Path .\Docs\DOCS-INDEX.md -SimpleMatch 'SPRINTS.md'  # found
+    - PowerShell: Select-String -Path .\Docs\PROJECT-TREE.txt -SimpleMatch 'tmp\backend'  # found
+  - Note: In chat, attachments named paste.txt are conversation snippets only, not repo files; do not treat them as artifacts to clean.
