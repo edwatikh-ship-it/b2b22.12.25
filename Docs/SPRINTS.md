@@ -46,3 +46,25 @@ Next:
   - [ ] Choose next endpoint slice from api-contracts.yaml and implement minimal behavior (+ tests).
   - [ ] Parserservice: support StartParsingRequestDTO.source (google/yandex/both); currently yandex-only.
   - [ ] Consider propagating source metadata into ParsingDomainGroupDTO.source (needs parserservice output).
+
+## 2025-12-22  Parsing: интеграция с parser_service (полный стек)
+
+Goal:
+- Полноценная интеграция backend с внешним Search Parser API (parser_service) с хранением результатов в БД и доменным accordion для модератора.
+
+Done:
+- [x] Созданы таблицы parsing_requests, parsing_runs, parsing_hits (Alembic rev 99022bad0a16).
+- [x] Добавлен ParserServiceClient (PARSER_SERVICE_URL, методы start_parse/get_results/health_check).
+- [x] Реализованы репозитории для создания заявок, запусков и сохранения hits.
+- [x] Реализованы usecase'ы start_parsing, list_parsing_runs, get_parsing_results.
+- [x] Реализованы эндпоинты:
+  - POST /moderator/requests/{requestId}/start-parsing,
+  - GET /moderator/parsing-runs,
+  - GET /moderator/parsing-runs/{runId}.
+- [x] Добавлены 6 интеграционных тестов tests/integration/test_parsing_endpoints.py; общий прогон: 45 passed, 1 skipped.
+
+Next:
+- [ ] Добавить отдельный эндпоинт для ручного парсинга по строке:
+      POST /moderator/manual-parsing с телом {keyword, depth, source},
+      использовать те же parsing_runs/parsing_hits, что и для заявок.
+- [ ] Спроектировать и реализовать UI-экран "Ручной парсинг" (отдельная страница в ЛК модератора).

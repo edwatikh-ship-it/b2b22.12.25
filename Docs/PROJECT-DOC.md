@@ -236,3 +236,68 @@ Source: D:\ProjectVC\search-parser (отдельный репозиторий).
 - Ошибки парсера:
   - Не пишутся в INCIDENTS.md.
   - Сохраняются в БД и показываются модератору в отдельном окне ошибок.
+
+## Moderator UI flow (Parsing)
+
+### 1. Парсинг по задаче
+
+1. Модератор открывает задачу клиента и видит:
+   - список ключей для парсинга,
+   - глубину (depth) и источник (google/yandex/both),
+   - кнопку "Начать парсинг".
+
+2. При нажатии "Начать парсинг":
+   - фронтенд вызывает POST /moderator/requests/{requestId}/start-parsing с {depth, source}.
+   - backend:
+     - создаёт запись parsing_request (если её ещё нет),
+     - создаёт одну или несколько записей parsing_runs с собственными runId и статусом queued/running,
+     - вызывает внешний parser_service /parse для каждого ключа (keyword/depth/mode),
+     - сохраняет parser_task_id и статус run = running.
+   - UI показывает, что парсинг запущен (по runId или по задаче).
+
+3. Ожидание результатов:
+   - UI периодически опрашивает GET /moderator/parsing-runs и/или GET /moderator/parsing-runs/{runId}.
+   - backend:
+     - если run уже в статусе succeeded/failed — отдаёт данные из БД,
+     - если run ещё running — вызывает parser_service GET /results/{task_id}:
+       - при completed:
+         - сохраняет все ссылки в parsing_hits (runId, keyId, url, domain, source, title),
+         - обновляет статус run на succeeded,
+       - при failed:
+         - обновляет статус run на failed и сохраняет error_message.
+
+4. Просмотр результатов:
+   - UI показывает ParsingResultsResponseDTO:
+     - для каждого keyId — список доменов (accordion: domain -> urls[]),
+     - домены из глобального blacklist не отображаются (фильтрация на backend).
+   - Модератор из этого списка:
+     - создаёт карточки поставщиков/реселлеров,
+     - добавляет домены в blacklist,
+     - оставляет домены в очереди pending при необходимости.
+
+### 2. Ручной парсинг "через строку" (UI-ребро, TODO)
+
+Отдельный экран "Ручной парсинг":
+
+1. Модератор вводит:
+   - ключ (keyword),
+   - глубину (depth),
+   - источник (source = google/yandex/both),
+   - нажимает "Запустить".
+
+2. Фронтенд вызывает отдельный эндпоинт (планируется):
+   - POST /moderator/manual-parsing
+   - тело: { keyword, depth, source }.
+
+3. backend:
+   - создаёт parsing_request специального типа (manual),
+   - создаёт parsing_run для этого ключа,
+   - вызывает parser_service /parse,
+   - сохраняет parser_task_id и статус running,
+   - возвращает runId.
+
+4. UI:
+   - так же, как и для обычных задач, опрашивает GET /moderator/parsing-runs/{runId},
+   - показывает accordion по доменам и ссылкам.
+
+Статус: UI-флоу описан, основной поток (по задаче) реализован; ручной парсинг через строку требует отдельного эндпоинта /moderator/manual-parsing (TODO).
