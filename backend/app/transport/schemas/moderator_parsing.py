@@ -37,6 +37,12 @@ class StartParsingRequestDTO(BaseModel):
     source: ParsingRunSource | None = None
 
 
+class ManualParsingRequestDTO(BaseModel):
+    keyword: str
+    depth: int | None = Field(None, ge=1, le=50)
+    source: ParsingRunSource | None = None
+
+
 class ParsingKeyStatusDTO(BaseModel):
     """SSoT: api-contracts.yaml#/components/schemas/ParsingKeyStatusDTO"""
 
@@ -83,6 +89,7 @@ class ParsingDomainGroupDTO(BaseModel):
     urls: list[str]
     source: ParsingSource | None = None
     title: str | None = None
+    status: str | None = None  # "supplier", "reseller", "blacklist", or None (pending)
 
     class Config:
         populate_by_name = True

@@ -1,63 +1,54 @@
-"""Moderator pending domains (from parsing_storage).
+"""Moderator pending domains (from database).
 SSoT: api-contracts.yaml pending-domains."""
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, Path
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapters import parsing_storage
+from app.adapters.db.session import get_db_session
 from app.transport.schemas.moderator_pending_domains import (
     PendingDomainDetailDTO,
-    PendingDomainDTO,
     PendingDomainListResponseDTO,
-    PendingDomainUrlDTO,
+)
+from app.usecases.get_pending_domains import (
+    get_pending_domain_detail,
+    list_pending_domains,
 )
 
 router = APIRouter(tags=["ModeratorPendingDomains"])
 
 
 @router.get("/moderator/pending-domains", response_model=PendingDomainListResponseDTO)
-def list_pending_domains(
+async def list_pending_domains_endpoint(
     limit: int = 50,
     offset: int = 0,
     sortBy: Literal["hits", "createdat", "domain"] = "hits",
     sortOrder: Literal["asc", "desc"] = "desc",
+    session: AsyncSession = Depends(get_db_session),
 ) -> PendingDomainListResponseDTO:
-    print("DEBUG: START pending_domains, _runs len:", len(parsing_storage._runs))
-    all_domains = set()
-    for _run_id, run_data in parsing_storage._runs.items():
-        for _kid, kdata in run_data["keys"].items():
-            if kdata["status"] == "succeeded":
-                for item in kdata["items"]:
-                    all_domains.add(item["domain"])
-
-    domains = sorted(list(all_domains))
-    # MOCK PendingDomainDTO для Pydantic
-    items = [
-        PendingDomainDTO(
-            domain=d,
-            totalhits=1,
-            urlcount=1,
-            firstseenat="2025-12-20T19:53:00Z",
-            lasthitat="2025-12-20T20:00:00Z",
-            urls=[PendingDomainUrlDTO(url=f"https://{d}", hitcount=1, keys=["key1"])],
-        )
-        for d in domains[offset : offset + limit]
-    ]
-
-    print(f"DEBUG: returning {len(items)} domains")
-    return PendingDomainListResponseDTO(items=items, limit=limit, offset=offset, total=len(domains))
+    try:
+        return await list_pending_domains(session, limit, offset, sortBy, sortOrder)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Error in list_pending_domains_endpoint")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/moderator/pending-domains/{domain}", response_model=PendingDomainDetailDTO)
-def get_pending_domain_detail(domain: str) -> PendingDomainDetailDTO:
-    return PendingDomainDetailDTO(
-        domain=domain,
-        totalhits=5,
-        urlcount=1,
-        firstseenat="2025-12-20T19:53:00Z",
-        lasthitat="2025-12-20T20:00:00Z",
-        urls=[PendingDomainUrlDTO(url=f"https://{domain}", hitcount=5, keys=["key1"])],
-    )
+async def get_pending_domain_detail_endpoint(
+    domain: Annotated[str, Path()],
+    session: AsyncSession = Depends(get_db_session),
+) -> PendingDomainDetailDTO:
+    try:
+        return await get_pending_domain_detail(session, domain)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Error in get_pending_domain_detail_endpoint")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

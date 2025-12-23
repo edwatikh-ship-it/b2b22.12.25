@@ -49,28 +49,31 @@ async def human_type_text(page: Page, selector: str, text: str):
     await human_pause(0.3, 0.8)
 
 async def wait_for_captcha(page: Page, engine_name: str):
-    """Ожидание капчи с принудительной активацией окна"""
+    """Ожидание капчи с принудительной активацией и разворачиванием окна"""
     captcha_detected = False
     
     while True:
         url = page.url.lower()
         if "captcha" in url or "showcaptcha" in url:
             if not captcha_detected:
-                # Playwright активация
+                # Maximize browser window when captcha is detected
                 try:
+                    # Set viewport to fullscreen for captcha
+                    await page.set_viewport_size({"width": 1920, "height": 1080})
                     await page.bring_to_front()
                     await page.evaluate("() => { window.focus(); }")
                 except:
                     pass
                 
-                # ПРИНУДИТЕЛЬНАЯ активация через PowerShell
+                # ПРИНУДИТЕЛЬНАЯ активация и разворачивание через PowerShell
                 try:
+                    import os
                     ps_cmd = '''
                     $w = Get-Process chrome | Where {$_.MainWindowTitle -ne ""} | Select -First 1;
                     if ($w) {
-                        $sig = '[DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr h); [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr h, int c);';
+                        $sig = '[DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h); [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);';
                         $t = Add-Type -MemberDefinition $sig -Name Win32 -Namespace Native -PassThru;
-                        $t::ShowWindow($w.MainWindowHandle, 9);
+                        $t::ShowWindow($w.MainWindowHandle, 3); # SW_MAXIMIZE
                         $t::SetForegroundWindow($w.MainWindowHandle);
                     }
                     '''
@@ -88,5 +91,21 @@ async def wait_for_captcha(page: Page, engine_name: str):
             await asyncio.sleep(2)
         else:
             if captcha_detected:
-                print(f"\n✅ {engine_name}: Капча решена! Продолжаем...\n")
+                # Restore small window size after captcha is solved
+                try:
+                    await page.set_viewport_size({"width": 800, "height": 600})
+                    # Minimize window again
+                    import os
+                    ps_cmd = '''
+                    $w = Get-Process chrome | Where {$_.MainWindowTitle -ne ""} | Select -First 1;
+                    if ($w) {
+                        $sig = '[DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);';
+                        $t = Add-Type -MemberDefinition $sig -Name Win32 -Namespace Native -PassThru;
+                        $t::ShowWindow($w.MainWindowHandle, 6); # SW_MINIMIZE
+                    }
+                    '''
+                    os.system(f'powershell -WindowStyle Hidden -Command "{ps_cmd}"')
+                except:
+                    pass
+                print(f"\n[OK] {engine_name}: Капча решена! Продолжаем...\n")
             break

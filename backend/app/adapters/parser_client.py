@@ -21,13 +21,31 @@ class ParserServiceClient:
         Request: { keyword, depth (1-10), mode ("yandex"/"google"/"both") }
         Response: { task_id, message, started_at }
         """
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{self.base_url}/parse",
-                json={"keyword": keyword, "depth": depth, "mode": mode},
-            )
-            response.raise_for_status()
-            return response.json()
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+            try:
+                response = await client.post(
+                    f"{self.base_url}/parse",
+                    json={"keyword": keyword, "depth": depth, "mode": mode},
+                    headers=headers,
+                )
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as e:
+                # Log detailed error information
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Parser service HTTP error: {e.response.status_code} - {e.response.text}")
+                raise
+            except httpx.RequestError as e:
+                # Log connection errors
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Parser service connection error: {str(e)}")
+                raise
 
     async def get_results(self, task_id: str) -> dict[str, Any]:
         """

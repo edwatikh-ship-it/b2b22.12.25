@@ -1,3 +1,34 @@
+# B2B Platform - Project Documentation
+
+## Архитектура
+
+### Backend: FastAPI
+- **Структура**: `transport → usecases → domain → adapters`
+- **Transport**: FastAPI routers, Pydantic schemas
+- **Usecases**: Бизнес-логика
+- **Domain**: Модели и порты
+- **Adapters**: Реализация портов (DB, внешние сервисы)
+
+### Frontend: Next.js 16
+- **App Router**: RSC (React Server Components) + Client Components
+- **UI**: Tailwind CSS v4 + shadcn/ui
+- **TypeScript**: Полная типизация API контрактов
+
+## API Контракты
+
+**SSoT**: `Docs/api-contracts.yaml`
+
+Все `/moderator/*` endpoints определены в контрактах. TypeScript типы в `frontend/moderator-dashboard-ui/lib/types.ts` синхронизированы с контрактами.
+
+### Основные эндпоинты:
+
+- **Parsing**: `/moderator/requests/{requestId}/start-parsing`, `/moderator/manual-parsing`, `/moderator/requests/{requestId}/parsing-status`, `/moderator/requests/{requestId}/parsing-results`
+- **Runs**: `/moderator/parsing-runs`, `/moderator/parsing-runs/{runId}`, `/moderator/parsing-runs/{runId}/logs`
+- **Domains**: `/moderator/pending-domains`, `/moderator/pending-domains/{domain}`, `/moderator/domains/{domain}/decision`
+- **Blacklist**: `/moderator/blacklist-domains`, `/moderator/blacklist-domains/{domain}`
+- **Keywords**: `/moderator/keywords`
+- **Suppliers**: `/moderator/suppliers`, `/moderator/suppliers/{id}`
+
 ## Parsing: implementation notes (MVP)
 
 ### Depth (search pages)

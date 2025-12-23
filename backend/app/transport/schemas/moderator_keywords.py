@@ -26,7 +26,7 @@ class KeywordItemDTO(BaseModel):
     requestId: int
     keyword: str
     status: KeywordStatus
-    lastRunId: int | None = None
+    lastRunId: str | None = None  # Changed from int to str (UUID)
     lastRunStatus: ParsingRunStatus | None = None
     lastRunAt: datetime | None = None
     domainsFound: int

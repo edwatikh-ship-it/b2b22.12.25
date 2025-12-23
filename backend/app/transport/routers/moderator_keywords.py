@@ -4,7 +4,7 @@ Moderator keywords base router.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.db.session import get_db_session
@@ -23,4 +23,10 @@ async def list_keywords_endpoint(
     sort: Annotated[str, Query()] = "keyword_asc",
     session: AsyncSession = Depends(get_db_session),
 ) -> KeywordsListResponseDTO:
-    return await list_keywords(session, q, status, limit, offset, sort)
+    try:
+        return await list_keywords(session, q, status, limit, offset, sort)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Error in list_keywords_endpoint")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

@@ -52,3 +52,21 @@ storage/
 # Logs (root)
 parser.log
 *.log
+
+# Test files (temporary)
+backend/test_*.py
+backend/test_*.json
+backend/call_parser.py
+backend/seed_data.py
+backend/seed_test_data.sql
+parser_service/test_*.json
+parser_service/results*.txt
+parser_service/run_api.py
+parser_service/simple_api.py
+parser_service/test_cdp_direct.py
+
+# Documentation duplicates
+Prompt/
+FRONTEND_FIXES_SUMMARY.md
+PROMPT_FOR_V0.md
+CLEANUP_COMMANDS.md

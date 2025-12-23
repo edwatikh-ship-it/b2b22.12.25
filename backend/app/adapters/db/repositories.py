@@ -384,6 +384,8 @@ class DomainBlacklistRepository:
 
     async def add_root_domain(self, root_domain: str, comment: str | None = None) -> int:
         root_domain = str(root_domain).strip().lower()
+        # Normalize domain: remove www. prefix for consistent storage
+        root_domain = root_domain.replace("www.", "")
         if not root_domain:
             raise ValueError("empty_domain")
 
@@ -669,6 +671,122 @@ class ParsingRepository:
         stmt = select(ParsingRunLogModel).where(ParsingRunLogModel.run_id == run_id).order_by(ParsingRunLogModel.timestamp)
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_pending_domains(
+        self,
+        limit: int = 50,
+        offset: int = 0,
+        sort_by: str = "hits",
+        sort_order: str = "desc",
+    ) -> list[tuple[str, int, int, datetime, datetime]]:
+        """
+        Get pending domains (domains that are not blacklisted and have no decision).
+        Returns: list of (domain, total_hits, url_count, first_seen_at, last_hit_at)
+        """
+        from sqlalchemy import func, and_
+        from app.adapters.db.models import DomainBlacklistDomainModel, DomainDecisionModel
+        
+        # Get blacklisted domains
+        blacklist_stmt = select(DomainBlacklistDomainModel.root_domain)
+        blacklist_result = await self._session.execute(blacklist_stmt)
+        blacklisted = set(blacklist_result.scalars().all())
+        
+        # Get domains with decisions
+        decision_stmt = select(DomainDecisionModel.domain)
+        decision_result = await self._session.execute(decision_stmt)
+        decided = set(decision_result.scalars().all())
+        
+        # Get all domains from hits, excluding blacklisted and decided
+        stmt = (
+            select(
+                ParsingHitModel.domain,
+                func.count(ParsingHitModel.id).label("total_hits"),
+                func.count(func.distinct(ParsingHitModel.url)).label("url_count"),
+                func.min(ParsingHitModel.created_at).label("first_seen_at"),
+                func.max(ParsingHitModel.created_at).label("last_hit_at"),
+            )
+            .where(~ParsingHitModel.domain.in_(blacklisted))
+            .where(~ParsingHitModel.domain.in_(decided))
+            .group_by(ParsingHitModel.domain)
+        )
+        
+        # Apply sorting
+        if sort_by == "hits":
+            order_col = func.count(ParsingHitModel.id)
+        elif sort_by == "createdat":
+            order_col = func.min(ParsingHitModel.created_at)
+        elif sort_by == "domain":
+            order_col = ParsingHitModel.domain
+        else:
+            order_col = func.count(ParsingHitModel.id)
+        
+        if sort_order == "desc":
+            stmt = stmt.order_by(order_col.desc())
+        else:
+            stmt = stmt.order_by(order_col.asc())
+        
+        stmt = stmt.limit(limit).offset(offset)
+        result = await self._session.execute(stmt)
+        
+        return [
+            (row.domain, row.total_hits, row.url_count, row.first_seen_at, row.last_hit_at)
+            for row in result
+        ]
+
+    async def get_pending_domain_detail(self, domain: str) -> tuple[str, int, int, datetime, datetime, list[tuple[str, int, list[str]]]]:
+        """
+        Get pending domain detail with URLs and keywords.
+        Returns: (domain, total_hits, url_count, first_seen_at, last_hit_at, [(url, hit_count, [keywords])])
+        """
+        from sqlalchemy import func
+        
+        # Get all hits for this domain
+        stmt = (
+            select(
+                ParsingHitModel.url,
+                ParsingHitModel.keyword,
+                ParsingHitModel.created_at,
+            )
+            .where(ParsingHitModel.domain == domain)
+            .order_by(ParsingHitModel.created_at)
+        )
+        result = await self._session.execute(stmt)
+        hits = result.all()
+        
+        if not hits:
+            raise ValueError(f"Domain {domain} not found")
+        
+        # Group by URL
+        url_data: dict[str, tuple[int, list[str], datetime, datetime]] = {}
+        for hit in hits:
+            url = hit.url
+            keyword = hit.keyword
+            created_at = hit.created_at
+            
+            if url not in url_data:
+                url_data[url] = (0, [], created_at, created_at)
+            
+            count, keywords, first_seen, last_seen = url_data[url]
+            url_data[url] = (
+                count + 1,
+                keywords + [keyword] if keyword not in keywords else keywords,
+                min(first_seen, created_at),
+                max(last_seen, created_at),
+            )
+        
+        # Calculate totals
+        total_hits = len(hits)
+        url_count = len(url_data)
+        first_seen_at = min(hit.created_at for hit in hits)
+        last_hit_at = max(hit.created_at for hit in hits)
+        
+        # Build URL list
+        url_list = [
+            (url, count, keywords)
+            for url, (count, keywords, _, _) in url_data.items()
+        ]
+        
+        return (domain, total_hits, url_count, first_seen_at, last_hit_at, url_list)
 
 
 class ModeratorSupplierRepository:

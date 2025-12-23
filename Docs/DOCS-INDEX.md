@@ -22,7 +22,23 @@ This file explains what each top-level documentation file means and where it liv
 - SPRINTS.md  sprint plan (dates, goals, checkboxes); keep it current.
 
 ## Where these files live
-All files above must live in the repo root D:\b2b (SSoT rule: no duplicates in backend\).
+All SSoT files above must live in the `Docs/` directory:
+- `Docs/api-contracts.yaml` - API contract SSoT
+- `Docs/PROJECT-RULES.md` - Process rules SSoT
+- `Docs/PROJECT-DOC.md` - Product/architecture documentation
+- `Docs/HANDOFF.md` - Success log
+- `Docs/INCIDENTS.md` - Failure log
+- `Docs/SPRINTS.md` - Sprint plan
+
+**Root directory** (`D:\b2b\`) contains:
+- `README.md` - Quick start guide and overview
+- `TROUBLESHOOTING.md` - Common issues and solutions
+- `start-dev.ps1` / `start-dev-quiet.ps1` - Launch scripts
+- Other operational files
+
+**Archive** (`Docs/archive/`) contains:
+- Outdated or temporary documentation files
+- Historical documents that are no longer actively maintained
 
 ## Sandbox snapshot 2025-12-22
 

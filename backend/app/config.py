@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     )
     
     PARSER_SERVICE_URL: str = Field(
-        default="http://127.0.0.1:9001",
+        default="http://127.0.0.1:9003",
         validation_alias=AliasChoices("PARSER_SERVICE_URL", "PARSERSERVICEURL")
     )
 

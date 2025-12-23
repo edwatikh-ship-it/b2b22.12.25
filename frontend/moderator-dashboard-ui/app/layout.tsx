@@ -3,13 +3,16 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { I18nProvider } from "@/lib/i18n/i18n-context"
+import { Toaster } from "@/components/ui/toaster"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Модератор - B2B Parsing Platform",
-  description: "Профессиональная панель управления платформой парсинга",
+  title: "Moderator Dashboard",
+  description: "B2B Moderator Dashboard for managing parsing, domains, suppliers, and blacklist",
   generator: "v0.app",
   icons: {
     icon: [
@@ -36,9 +39,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ru">
+    <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <I18nProvider>
+            {children}
+            <Toaster />
+          </I18nProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

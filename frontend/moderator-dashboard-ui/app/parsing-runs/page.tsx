@@ -1,170 +1,170 @@
 "use client"
-
-import { useState, useEffect } from "react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, ChevronRight, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { apiFetch, APIError } from "@/lib/api"
+import type { ParsingRunsListResponseDTO, ParsingRunDTO } from "@/lib/types"
+import { EmptyState } from "@/components/empty-state"
+import { ErrorState } from "@/components/error-state"
+import { LoadingState } from "@/components/loading-state"
+import { StatusBadge } from "@/components/status-badge"
+import { History, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { api, type ParsingRun } from "@/lib/api"
+import { format } from "date-fns"
+import { useI18n } from "@/lib/i18n/i18n-context"
 
 export default function ParsingRunsPage() {
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [search, setSearch] = useState("")
-  
-  const [runs, setRuns] = useState<ParsingRun[]>([])
-  const [loading, setLoading] = useState(true)
+  const { t } = useI18n()
+  const [data, setData] = useState<ParsingRunsListResponseDTO | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string>("all")
 
   useEffect(() => {
-    loadRuns()
+    fetchRuns()
   }, [statusFilter])
 
-  const loadRuns = async () => {
+  const fetchRuns = async () => {
+    setIsLoading(true)
+    setError(null)
+
     try {
-      setLoading(true)
-      setError(null)
-      const response = await api.getParsingRuns({
-        status: statusFilter === 'all' ? undefined : statusFilter,
-        limit: 50,
-      })
-      setRuns(response.items)
+      const params = new URLSearchParams({ limit: "50", offset: "0" })
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter)
+      }
+
+      const response = await apiFetch<ParsingRunsListResponseDTO>(`/moderator/parsing-runs?${params}`)
+      setData(response)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки')
+      if (err instanceof APIError) {
+        setError(err.message)
+      } else {
+        setError("Failed to load parsing runs")
+      }
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  const filteredRuns = runs.filter(run => {
-    if (!search) return true
-    return run.runId.toLowerCase().includes(search.toLowerCase()) ||
-           run.requestId.toString().includes(search)
-  })
-
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance">История запусков</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("parsingRunsTitle")}</h1>
+          <p className="text-muted-foreground">{t("parsingRunsSubtitle")}</p>
         </div>
-
-        <Card className="p-6 bg-card/50 backdrop-blur-sm border-white/[0.08]">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Поиск по ключу или задаче"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 h-10 bg-background/50"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[200px] h-10 bg-background/50">
-                <SelectValue placeholder="Статус" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все</SelectItem>
-                <SelectItem value="queued">В очереди</SelectItem>
-                <SelectItem value="running">Выполняется</SelectItem>
-                <SelectItem value="succeeded">Готово</SelectItem>
-                <SelectItem value="failed">Ошибка</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </Card>
-
-        {error && (
-          <Card className="p-4 bg-red-500/10 border-red-500/20">
-            <div className="flex items-center gap-2 text-red-400">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm">{error}</span>
-            </div>
-          </Card>
-        )}
-
-        <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-white/[0.08]">
-          {loading ? (
-            <div className="text-center py-12 text-muted-foreground">Загрузка...</div>
-          ) : filteredRuns.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">Пока нет запусков</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/[0.08] bg-muted/30">
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Run ID</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Request ID</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Глубина</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Источник</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Статус</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Создан</th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRuns.map((run) => (
-                    <tr
-                      key={run.runId}
-                      className="border-b border-white/[0.05] hover:bg-accent/50 transition-colors duration-200 cursor-pointer"
-                    >
-                      <td className="py-3 px-4 text-sm font-mono text-muted-foreground">
-                        {run.runId.slice(0, 8)}...
-                      </td>
-                      <td className="py-3 px-4 text-sm font-mono text-muted-foreground">
-                        {run.requestId}
-                      </td>
-                      <td className="py-3 px-4 text-sm font-mono">{run.depth || '-'}</td>
-                      <td className="py-3 px-4 text-sm">{run.source || '-'}</td>
-                      <td className="py-3 px-4">
-                        <StatusBadge status={run.status} />
-                      </td>
-                      <td className="py-3 px-4 text-sm">
-                        {new Date(run.createdAt).toLocaleString('ru-RU')}
-                      </td>
-                      <td className="py-3 px-4">
-                        <Link href={`/parsing-runs/${run.runId}`}>
-                          <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs">
-                            Подробнее
-                            <ChevronRight className="w-3 h-3" />
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+        <div className="flex items-center gap-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t("filterByStatus")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allStatuses")}</SelectItem>
+              <SelectItem value="queued">{t("queued")}</SelectItem>
+              <SelectItem value="running">{t("running")}</SelectItem>
+              <SelectItem value="succeeded">{t("succeeded")}</SelectItem>
+              <SelectItem value="failed">{t("failed")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-    </DashboardLayout>
+
+      {error && <ErrorState message={error} />}
+
+      {isLoading ? (
+        <LoadingState message={t("loading")} />
+      ) : !data || data.items.length === 0 ? (
+        <EmptyState
+          icon={History}
+          title={t("noParsingRuns")}
+          description={t("noParsingRunsDesc")}
+          action={
+            <Button asChild>
+              <Link href="/manual-parsing">{t("startParsing")}</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <div className="space-y-4">
+          <div className="text-sm text-muted-foreground">
+            {t("showing")} {data.items.length} {t("of")} {data.total} {t("runs")}
+          </div>
+
+          <div className="grid gap-4">
+            {data.items.map((run) => (
+              <ParsingRunCard key={run.runId} run={run} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const styles = {
-    succeeded: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    running: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    failed: "bg-red-500/10 text-red-400 border-red-500/20",
-    queued: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  }
-
-  const labels = {
-    succeeded: "Готово",
-    running: "Выполняется",
-    failed: "Ошибка",
-    queued: "В очереди",
-  }
-
+function ParsingRunCard({ run }: { run: ParsingRunDTO }) {
+  const { t } = useI18n()
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${styles[status as keyof typeof styles]}`}
-    >
-      {labels[status as keyof typeof labels]}
-    </span>
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-base">{t("runId")}: {run.runId.slice(0, 8)}</CardTitle>
+            {run.requestId && <CardDescription>{t("requestId")}: {run.requestId}</CardDescription>}
+          </div>
+          <StatusBadge status={run.status} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            {run.createdAt && (
+              <div>
+                <span className="text-muted-foreground">{t("createdAt")}:</span>
+                <p className="font-medium">{format(new Date(run.createdAt), "PPp")}</p>
+              </div>
+            )}
+            {run.finishedAt && (
+              <div>
+                <span className="text-muted-foreground">{t("finishedAt")}:</span>
+                <p className="font-medium">{format(new Date(run.finishedAt), "PPp")}</p>
+              </div>
+            )}
+            {run.depth !== undefined && (
+              <div>
+                <span className="text-muted-foreground">{t("depth")}:</span>
+                <p className="font-medium">{run.depth}</p>
+              </div>
+            )}
+            {run.source && (
+              <div>
+                <span className="text-muted-foreground">{t("source")}:</span>
+                <p className="font-medium capitalize">{run.source}</p>
+              </div>
+            )}
+          </div>
+
+          {run.totalKeys !== undefined && (
+            <div className="text-sm">
+              <span className="text-muted-foreground">{t("totalKeywords")}: </span>
+              <Badge variant="secondary">{run.totalKeys}</Badge>
+            </div>
+          )}
+
+          {run.errorMessage && (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{run.errorMessage}</div>
+          )}
+
+          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">
+            <Link href={`/parsing-runs/${run.runId}`}>
+              {t("viewDetails")}
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

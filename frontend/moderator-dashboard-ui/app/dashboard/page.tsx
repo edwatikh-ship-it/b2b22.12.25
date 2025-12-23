@@ -1,143 +1,130 @@
 "use client"
 
-import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Activity, Clock, CheckCircle2, XCircle, TrendingUp, Database } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Search, History, Clock, Database, Building2, Shield, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { useI18n } from "@/lib/i18n/i18n-context"
 
 export default function DashboardPage() {
+  const { t } = useI18n()
+
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Панель управления</h1>
-          <p className="text-muted-foreground mt-2">Обзор активности платформы парсинга</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{t("dashboardTitle")}</h1>
+        <p className="text-muted-foreground">{t("dashboardSubtitle")}</p>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Активные запуски</CardTitle>
-              <Activity className="w-4 h-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground mt-1">+2 за последний час</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">В очереди</CardTitle>
-              <Clock className="w-4 h-4 text-yellow-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">847</div>
-              <p className="text-xs text-muted-foreground mt-1">доменов ожидают обработки</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Успешных</CardTitle>
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,284</div>
-              <p className="text-xs text-muted-foreground mt-1">за последние 24 часа</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Ошибок</CardTitle>
-              <XCircle className="w-4 h-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-muted-foreground mt-1">требуют внимания</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Success Rate</CardTitle>
-              <TrendingUp className="w-4 h-4 text-cyan-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">98.2%</div>
-              <p className="text-xs text-muted-foreground mt-1">+0.5% от прошлой недели</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">База данных</CardTitle>
-              <Database className="w-4 h-4 text-purple-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">45.2K</div>
-              <p className="text-xs text-muted-foreground mt-1">записей в системе</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        <Card className="bg-card/50 backdrop-blur-sm border-white/[0.08]">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
           <CardHeader>
-            <CardTitle>Последняя активность</CardTitle>
-            <CardDescription>Недавние события в системе парсинга</CardDescription>
+            <div className="flex items-center justify-between">
+              <Search className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardTitle>{t("startNewParsing")}</CardTitle>
+            <CardDescription>{t("startNewParsingDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  action: "Запуск парсинга завершен",
-                  target: "example.com",
-                  time: "2 минуты назад",
-                  status: "success",
-                },
-                {
-                  action: "Новый домен добавлен",
-                  target: "newdomain.ru",
-                  time: "15 минут назад",
-                  status: "info",
-                },
-                {
-                  action: "Ошибка парсинга",
-                  target: "failed-site.com",
-                  time: "32 минуты назад",
-                  status: "error",
-                },
-                {
-                  action: "Обновлены ключевые слова",
-                  target: "База ключей",
-                  time: "1 час назад",
-                  status: "info",
-                },
-              ].map((activity, i) => (
-                <div key={i} className="flex items-center gap-4 py-2 border-b border-white/[0.05] last:border-0">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      activity.status === "success"
-                        ? "bg-green-500"
-                        : activity.status === "error"
-                          ? "bg-red-500"
-                          : "bg-blue-500"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.target}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{activity.time}</span>
-                </div>
-              ))}
+            <Button asChild className="w-full">
+              <Link href="/manual-parsing">
+                {t("startParsing")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <History className="h-5 w-5 text-muted-foreground" />
             </div>
+            <CardTitle>{t("viewParsingHistory")}</CardTitle>
+            <CardDescription>{t("viewParsingHistoryDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full bg-transparent">
+              <Link href="/parsing-runs">
+                {t("viewDetails")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Clock className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardTitle>{t("reviewPendingDomains")}</CardTitle>
+            <CardDescription>{t("reviewPendingDomainsDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full bg-transparent">
+              <Link href="/domains/queue">
+                {t("viewDetails")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Database className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardTitle>{t("manageKeywords")}</CardTitle>
+            <CardDescription>{t("manageKeywordsDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full bg-transparent">
+              <Link href="/keywords">
+                {t("viewDetails")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Building2 className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardTitle>{t("manageSuppliersResellers")}</CardTitle>
+            <CardDescription>{t("manageSuppliersResellersDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full bg-transparent">
+              <Link href="/suppliers">
+                {t("viewDetails")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Shield className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardTitle>{t("manageBlacklist")}</CardTitle>
+            <CardDescription>{t("manageBlacklistDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full bg-transparent">
+              <Link href="/blacklist">
+                {t("viewDetails")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   )
 }

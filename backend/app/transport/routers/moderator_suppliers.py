@@ -31,7 +31,13 @@ async def list_moderator_suppliers_endpoint(
     sort: Annotated[str, Query()] = "name_asc",
     session: AsyncSession = Depends(get_db_session),
 ) -> ModeratorSuppliersListResponseDTO:
-    return await list_moderator_suppliers(session, q, type, limit, offset, sort)
+    try:
+        return await list_moderator_suppliers(session, q, type, limit, offset, sort)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Error in list_moderator_suppliers_endpoint")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.post("/moderator/suppliers", response_model=ModeratorSupplierDTO)

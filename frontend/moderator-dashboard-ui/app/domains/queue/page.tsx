@@ -1,191 +1,164 @@
 "use client"
-
-import { useState } from "react"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, ExternalLink, Plus, Ban, Clock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { apiFetch, APIError } from "@/lib/api"
+import type { PendingDomainListResponseDTO } from "@/lib/types"
+import { EmptyState } from "@/components/empty-state"
+import { ErrorState } from "@/components/error-state"
+import { LoadingState } from "@/components/loading-state"
+import { Clock, ArrowUpDown, ExternalLink, ArrowLeft, Home } from "lucide-react"
+import Link from "next/link"
+import { format } from "date-fns"
+import { useI18n } from "@/lib/i18n/i18n-context"
+import { useRouter } from "next/navigation"
 
-interface DomainQueueItem {
-  domain: string
-  status: "pending" | "supplier" | "reseller" | "blacklist"
-  lastKeyword: string
-  hits: number
-  lastSeen: string
-}
+export default function PendingDomainsPage() {
+  const { t } = useI18n()
+  const router = useRouter()
+  const [data, setData] = useState<PendingDomainListResponseDTO | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<"hits" | "createdat" | "domain">("hits")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending">("pending")
 
-export default function DomainQueuePage() {
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("domain")
+  useEffect(() => {
+    fetchDomains()
+  }, [sortBy, sortOrder, statusFilter])
 
-  const domains: DomainQueueItem[] = [
-    {
-      domain: "metallpro.ru",
-      status: "pending",
-      lastKeyword: "металлопрокат москва",
-      hits: 12,
-      lastSeen: "2025-01-20 14:35",
-    },
-    {
-      domain: "steelmarket.com",
-      status: "pending",
-      lastKeyword: "сталь оптом",
-      hits: 8,
-      lastSeen: "2025-01-20 13:22",
-    },
-    {
-      domain: "supplier-one.ru",
-      status: "supplier",
-      lastKeyword: "стройматериалы",
-      hits: 24,
-      lastSeen: "2025-01-20 12:10",
-    },
-  ]
+  const fetchDomains = async () => {
+    setIsLoading(true)
+    setError(null)
 
-  const handleQuickAction = async (domain: string, action: string) => {
-    console.log("[v0] Quick action:", action, "for domain:", domain)
+    try {
+      const params = new URLSearchParams({
+        limit: "50",
+        offset: "0",
+        sortBy,
+        sortOrder,
+      })
+
+      const response = await apiFetch<PendingDomainListResponseDTO>(`/moderator/pending-domains?${params}`)
+      setData(response)
+    } catch (err) {
+      if (err instanceof APIError) {
+        setError(err.message)
+      } else {
+        setError("Failed to load pending domains")
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance">Очередь доменов</h1>
-          <p className="text-muted-foreground mt-2">Рабочий инбокс модератора</p>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => router.back()} title={t("goBack")}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Link href="/dashboard">
+              <Button variant="ghost" size="icon" title={t("goToHome")}>
+                <Home className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t("pendingDomainsTitle")}</h1>
+            <p className="text-muted-foreground">{t("pendingDomainsSubtitle")}</p>
+          </div>
         </div>
-
-        <Card className="p-6 bg-card/50 backdrop-blur-sm border-white/[0.08]">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Поиск по домену"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 h-10 bg-background/50"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px] h-10 bg-background/50">
-                <SelectValue placeholder="Статус" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="supplier">Поставщики</SelectItem>
-                <SelectItem value="reseller">Реселлеры</SelectItem>
-                <SelectItem value="blacklist">Blacklist</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-[180px] h-10 bg-background/50">
-                <SelectValue placeholder="Сортировка" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="domain">По домену</SelectItem>
-                <SelectItem value="date">По дате</SelectItem>
-                <SelectItem value="hits">По хитам</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </Card>
-
-        <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-white/[0.08]">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/[0.08] bg-muted/30">
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Домен</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Статус</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Последний ключ</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Хитов</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Последнее появление</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {domains.map((domain, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-white/[0.05] hover:bg-accent/50 transition-colors duration-200 group"
-                  >
-                    <td className="py-3 px-4 text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        {domain.domain}
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <DomainStatusBadge status={domain.status} />
-                    </td>
-                    <td className="py-3 px-4 text-sm">{domain.lastKeyword}</td>
-                    <td className="py-3 px-4 text-sm font-mono">{domain.hits}</td>
-                    <td className="py-3 px-4 text-sm">{domain.lastSeen}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          title="Поставщик"
-                          onClick={() => handleQuickAction(domain.domain, "supplier")}
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          title="Blacklist"
-                          onClick={() => handleQuickAction(domain.domain, "blacklist")}
-                        >
-                          <Ban className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          title="Очередь"
-                          onClick={() => handleQuickAction(domain.domain, "pending")}
-                        >
-                          <Clock className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        <div className="flex items-center gap-2">
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t("status")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allStatuses")}</SelectItem>
+              <SelectItem value="pending">{t("awaitingDecision")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder={t("sortBy")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="hits">{t("hits")}</SelectItem>
+              <SelectItem value="createdat">{t("dateAdded")}</SelectItem>
+              <SelectItem value="domain">{t("domain")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}>
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-    </DashboardLayout>
-  )
-}
 
-function DomainStatusBadge({ status }: { status: string }) {
-  const styles = {
-    supplier: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    reseller: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    blacklist: "bg-red-500/10 text-red-400 border-red-500/20",
-    pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  }
+      {error && <ErrorState message={error} />}
 
-  const labels = {
-    supplier: "Поставщик",
-    reseller: "Реселлер",
-    blacklist: "Blacklist",
-    pending: "Pending",
-  }
+      {isLoading ? (
+        <LoadingState message={t("loadingPendingDomains")} />
+      ) : !data || data.items.length === 0 ? (
+        <EmptyState
+          icon={Clock}
+          title={t("noPendingDomains")}
+          description={t("noPendingDomainsDesc")}
+        />
+      ) : (
+        <div className="space-y-4">
+          <div className="text-sm text-muted-foreground">
+            {t("showing")} {data.items.length} {t("of")} {data.total} {t("domains")}
+            {statusFilter === "pending" && ` (${t("awaitingDecision")}: ${data.total})`}
+          </div>
 
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${styles[status as keyof typeof styles]}`}
-    >
-      {labels[status as keyof typeof labels]}
-    </span>
+          <div className="grid gap-4">
+            {data.items.map((domain) => (
+              <Card key={domain.domain}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-lg">{domain.domain}</CardTitle>
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/domains/queue/${encodeURIComponent(domain.domain)}`}>
+                        {t("viewDetails")}
+                        <ExternalLink className="ml-2 h-3 w-3" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                      <p className="text-muted-foreground">Total Hits</p>
+                      <Badge variant="secondary" className="mt-1">
+                        {domain.totalhits}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Unique URLs</p>
+                      <Badge variant="secondary" className="mt-1">
+                        {domain.urlcount}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">First Seen</p>
+                      <p className="mt-1 font-medium">{format(new Date(domain.firstseenat), "PP")}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Last Seen</p>
+                      <p className="mt-1 font-medium">{format(new Date(domain.lasthitat), "PP")}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

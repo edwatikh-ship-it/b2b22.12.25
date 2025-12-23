@@ -25,7 +25,7 @@ class YandexEngine(SearchEngine):
     async def parse(self, page: Page, query: str, depth: int, collected_links: Set[str]):
         start_time = time.time()
         logger.info(f"{self.name}: Начало парсинга '{query}'")
-        print(f"\n⏱ {self.name}: Старт парсинга...")
+        print(f"\n[*] {self.name}: Старт парсинга...")
         
         initial_count = len(collected_links)
         
@@ -50,7 +50,7 @@ class YandexEngine(SearchEngine):
         await wait_for_captcha(page, self.name)
         
         for n in range(1, depth + 1):
-            print(f"📄 {self.name}: страница {n}/{depth}")
+            print(f"[PAGE] {self.name}: страница {n}/{depth}")
             
             await very_human_behavior(page)
             await human_pause(2, 4)
@@ -80,7 +80,7 @@ class YandexEngine(SearchEngine):
         
         elapsed = time.time() - start_time
         new_links = len(collected_links) - initial_count
-        print(f"✅ {self.name}: Собрано {new_links} ссылок за {elapsed:.1f} сек ({elapsed/60:.1f} мин)\n")
+        print(f"[OK] {self.name}: Собрано {new_links} ссылок за {elapsed:.1f} сек ({elapsed/60:.1f} мин)\n")
         logger.info(f"{self.name}: Завершено за {elapsed:.1f}с, собрано {new_links} ссылок")
 
 class GoogleEngine(SearchEngine):
@@ -90,7 +90,7 @@ class GoogleEngine(SearchEngine):
     async def parse(self, page: Page, query: str, depth: int, collected_links: Set[str]):
         start_time = time.time()
         logger.info(f"{self.name}: Начало парсинга '{query}'")
-        print(f"\n⏱ {self.name}: Старт парсинга...")
+        print(f"\n[*] {self.name}: Старт парсинга...")
         
         initial_count = len(collected_links)
         
@@ -102,7 +102,7 @@ class GoogleEngine(SearchEngine):
         await wait_for_captcha(page, self.name)
         
         for n in range(1, depth + 1):
-            print(f"📄 {self.name}: страница {n}/{depth}")
+            print(f"[PAGE] {self.name}: страница {n}/{depth}")
             
             await light_human_behavior(page)
             await wait_for_captcha(page, self.name)
@@ -130,5 +130,5 @@ class GoogleEngine(SearchEngine):
         
         elapsed = time.time() - start_time
         new_links = len(collected_links) - initial_count
-        print(f"✅ {self.name}: Собрано {new_links} ссылок за {elapsed:.1f} сек ({elapsed/60:.1f} мин)\n")
+        print(f"[OK] {self.name}: Собрано {new_links} ссылок за {elapsed:.1f} сек ({elapsed/60:.1f} мин)\n")
         logger.info(f"{self.name}: Завершено за {elapsed:.1f}с, собрано {new_links} ссылок")
